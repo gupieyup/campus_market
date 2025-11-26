@@ -78,14 +78,14 @@
     {{-- DATA DUMMY --}}
     @php
         $categories = [
-            ['name' => 'Buku & Teks Pelajaran', 'icon' => 'fa-book', 'color' => 'bg-yellow-100 text-yellow-600'],
             ['name' => 'Elektronik & Gadget', 'icon' => 'fa-laptop', 'color' => 'bg-blue-100 text-blue-600'],
-            ['name' => 'Perlengkapan Kuliah', 'icon' => 'fa-pen-to-square', 'color' => 'bg-green-100 text-green-600'],
             ['name' => 'Pakaian & Aksesoris', 'icon' => 'fa-shirt', 'color' => 'bg-pink-100 text-pink-600'],
+            ['name' => 'Perabot Rumah & Dapur', 'icon' => 'fa-bed', 'color' => 'bg-emerald-100 text-emerald-600'],
+            ['name' => 'Buku & Media', 'icon' => 'fa-book', 'color' => 'bg-yellow-100 text-yellow-600'],
             ['name' => 'Makanan & Minuman', 'icon' => 'fa-utensils', 'color' => 'bg-orange-100 text-orange-600'],
-            ['name' => 'Perlengkapan Kos', 'icon' => 'fa-bed', 'color' => 'bg-emerald-100 text-emerald-600'],
-            ['name' => 'Transportasi & Aksesori', 'icon' => 'fa-bicycle', 'color' => 'bg-indigo-100 text-indigo-600'],
-            ['name' => 'Jasa & Les', 'icon' => 'fa-user-graduate', 'color' => 'bg-purple-100 text-purple-600'],
+            ['name' => 'Kendaraan & Aksesoris', 'icon' => 'fa-bicycle', 'color' => 'bg-indigo-100 text-indigo-600'],
+            ['name' => 'Kesehatan & Kecantikan', 'icon' => 'fa-heart', 'color' => 'bg-rose-100 text-rose-600'],
+            ['name' => 'Jasa & Layanan', 'icon' => 'fa-briefcase', 'color' => 'bg-purple-100 text-purple-600'],
         ];
 
         $products = [
