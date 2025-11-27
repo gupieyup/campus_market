@@ -19,6 +19,12 @@ Route::get('/', function () {
     return view('pengunjung.home');
 });
 
+// Route ke halaman Home Pengunjung
+Route::get('/detailproduk', function () {
+    // Artinya: Buka file "home" yang ada di dalam folder "pengunjung"
+    return view('pengunjung.detailproduk');
+});
+
 Route::get('/login-seller', function () {
     // Artinya: Buka file "home" yang ada di dalam folder "pengunjung"
     return view('pengunjung.login');
@@ -72,4 +78,9 @@ Route::get('/dashboard-admin/seller-data', function () {
 
 Route::get('/dashboard-admin/reports', function () {
     return view('admin.laporan.laporan');
+});
+
+// Demo product detail (frontend-only) - no DB required
+Route::get('/detailproduk/demo', function () {
+    return view('pengunjung.detailproduk', compact('product', 'relatedProducts', 'reviews'));
 });
