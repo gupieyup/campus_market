@@ -73,9 +73,9 @@
                                 </td>
                                 <td class="p-5 text-sm text-gray-600">budi.s@student.univ.ac.id</td>
                                 <td class="p-5 text-right">
-                                    <button @click="openModal('Budi Santoso', 'Berkah Jaya Book', 'budi.s@student.univ.ac.id')" class="bg-red-500 hover:bg-red-600 text-white px-4 py-2 rounded-lg text-sm font-medium shadow-sm transition-colors">
+                                    <a href="{{ url('/dashboard-admin/detailverifikasi') }}" class="bg-red-500 hover:bg-red-600 text-white px-4 py-2 rounded-lg text-sm font-medium shadow-sm transition-colors inline-block">
                                         Review
-                                    </button>
+                                    </a>
                                 </td>
                             </tr>
 
@@ -99,9 +99,9 @@
                                 </td>
                                 <td class="p-5 text-sm text-gray-600">anisa.m@student.univ.ac.id</td>
                                 <td class="p-5 text-right">
-                                    <button @click="openModal('Anisa Maharani', 'Preloved Fashion', 'anisa.m@student.univ.ac.id')" class="bg-red-500 hover:bg-red-600 text-white px-4 py-2 rounded-lg text-sm font-medium shadow-sm transition-colors">
+                                    <a href="{{ url('/dashboard-admin/detailverifikasi') }}" class="bg-red-500 hover:bg-red-600 text-white px-4 py-2 rounded-lg text-sm font-medium shadow-sm transition-colors inline-block">
                                         Review
-                                    </button>
+                                    </a>
                                 </td>
                             </tr>
 
@@ -125,9 +125,9 @@
                                 </td>
                                 <td class="p-5 text-sm text-gray-600">dimas.k@student.univ.ac.id</td>
                                 <td class="p-5 text-right">
-                                    <button @click="openModal('Dimas Kurniawan', 'Jasa Ketik Kilat', 'dimas.k@student.univ.ac.id')" class="bg-red-500 hover:bg-red-600 text-white px-4 py-2 rounded-lg text-sm font-medium shadow-sm transition-colors">
+                                    <a href="{{ url('/dashboard-admin/detailverifikasi') }}" class="bg-red-500 hover:bg-red-600 text-white px-4 py-2 rounded-lg text-sm font-medium shadow-sm transition-colors inline-block">
                                         Review
-                                    </button>
+                                    </a>
                                 </td>
                             </tr>
                         </tbody>

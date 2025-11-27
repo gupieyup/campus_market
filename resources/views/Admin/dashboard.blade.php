@@ -23,7 +23,7 @@
             <div class="mb-8 bg-white rounded-2xl p-6 shadow-sm border border-red-100 flex justify-between items-center">
                 <div>
                     <h2 class="text-2xl font-bold text-gray-800">Selamat Datang Kembali! 👋</h2>
-                    <p class="text-gray-500 text-sm mt-1">Ringkasan aktivitas platform CampusMarket hari ini.</p>
+                    <p class="text-gray-500 text-sm mt-1">Ringkasan aktivitas platform SiToko hari ini.</p>
                 </div>
                 <div class="h-10 w-10 bg-red-200 rounded-full flex items-center justify-center text-red-500 font-bold">A</div>
             </div>

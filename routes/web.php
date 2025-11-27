@@ -42,5 +42,5 @@ Route::get('/dashboard-admin/seller-data', function () {
 
 Route::get('/dashboard-admin/reports', function () {
     // Artinya: Buka file "register" yang ada di dalam folder "pengunjung"
-    return view('admin.produk.produk');
+    return view('admin.laporan.laporan');
 });

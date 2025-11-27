@@ -61,7 +61,7 @@
                 <!-- Card Suspended -->
                 <div class="bg-white p-5 rounded-xl shadow-sm border border-red-50 flex items-center justify-between">
                     <div>
-                        <p class="text-xs font-bold text-gray-400 uppercase">Ditangguhkan / Banned</p>
+                        <p class="text-xs font-bold text-gray-400 uppercase">Tidak Aktif</p>
                         <p class="text-2xl font-bold text-red-500 mt-1">65</p>
                     </div>
                     <div class="h-10 w-10 bg-red-50 text-red-500 rounded-lg flex items-center justify-center">
@@ -84,7 +84,7 @@
                         <select x-model="filterStatus" class="px-4 py-2 rounded-lg border border-gray-200 text-sm focus:outline-none focus:ring-2 focus:ring-red-400 text-gray-600">
                             <option value="all">Semua Status</option>
                             <option value="active">Aktif</option>
-                            <option value="suspended">Ditangguhkan</option>
+                            <option value="inactive">Tidak Aktif</option>
                         </select>
                     </div>
                 </div>
@@ -133,7 +133,7 @@
                                         <span class="px-2.5 py-1 rounded-full text-xs font-bold inline-flex items-center gap-1"
                                             :class="seller.status === 'active' ? 'bg-green-100 text-green-700' : 'bg-red-100 text-red-700'">
                                             <span class="w-1.5 h-1.5 rounded-full" :class="seller.status === 'active' ? 'bg-green-500' : 'bg-red-500'"></span>
-                                            <span x-text="seller.status === 'active' ? 'Aktif' : 'Ditangguhkan'"></span>
+                                            <span x-text="seller.status === 'active' ? 'Aktif' : 'Tidak Aktif'"></span>
                                         </span>
                                     </td>
                                     <td class="p-5 text-right">
@@ -195,7 +195,10 @@
                                               seller.storeName.toLowerCase().includes(this.searchQuery.toLowerCase()) ||
                                               seller.email.toLowerCase().includes(this.searchQuery.toLowerCase());
                         
-                        const matchesFilter = this.filterStatus === 'all' || seller.status === this.filterStatus;
+                        // filterStatus: 'all' | 'active' | 'inactive' (treat any non-'active' as inactive)
+                        const matchesFilter = this.filterStatus === 'all' || (
+                            this.filterStatus === 'active' ? seller.status === 'active' : seller.status !== 'active'
+                        );
 
                         return matchesSearch && matchesFilter;
                     });
