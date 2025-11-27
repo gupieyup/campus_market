@@ -285,52 +285,7 @@
         </div>
     </div>
 
-    <footer>
-        <div class="footer-content">
-            <div class="footer-brand">
-                <div class="nav-logo">
-                    <i class="fas fa-shopping-cart"></i>
-                    <span>SiToko</span>
-                </div>
-                <p>Platform marketplace terdepan yang menghubungkan penjual berkualitas dengan jutaan pelanggan di seluruh Indonesia.</p>
-                <div class="social-icons mt-4">
-                    <a href="#"><i class="fab fa-facebook-f"></i></a>
-                    <a href="#"><i class="fab fa-instagram"></i></a>
-                    <a href="#"><i class="fab fa-twitter"></i></a>
-                </div>
-            </div>
-            <div class="footer-links">
-                <h3 class="footer-heading">SiToko</h3>
-                <ul>
-                    <li><a href="#">Tentang Kami</a></li>
-                    <li><a href="#">Karir</a></li>
-                    <li><a href="#">Blog</a></li>
-                </ul>
-            </div>
-            <div class="footer-links">
-                <h3 class="footer-heading">Bantuan</h3>
-                <ul>
-                    <li><a href="#">Pusat Bantuan</a></li>
-                    <li><a href="#">Syarat & Ketentuan</a></li>
-                    <li><a href="#">Panduan Penjual</a></li>
-                </ul>
-            </div>
-            <div class="footer-links">
-                <h3 class="footer-heading">Kontak</h3>
-                <ul>
-                    <li class="flex items-start gap-2 text-sm text-gray-500">
-                        <i class="fas fa-map-marker-alt mt-1 text-primary-600"></i>
-                        <span>Jl. Pemuda No. 123, Semarang</span>
-                    </li>
-                    <li class="flex items-center gap-2 text-sm text-gray-500">
-                        <i class="fas fa-envelope text-primary-600"></i>
-                        <span>support@sitoko.id</span>
-                    </li>
-                </ul>
-            </div>
-        </div>
-        <div class="footer-bottom">&copy; 2025 SiToko Marketplace. All rights reserved.</div>
-    </footer>
+    @include('components.footer')
 
     <button id="scrollToTop" class="fixed bottom-8 right-8 bg-primary-600 text-white p-4 rounded-full shadow-lg translate-y-20 opacity-0 transition-all duration-300 hover:bg-red-500 z-50">
         <i class="fas fa-arrow-up"></i>
