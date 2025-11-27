@@ -189,11 +189,11 @@
                 <div class="grid grid-cols-2 gap-4">
                     <div class="form-group">
                         <label class="form-label">RT*</label>
-                        <input type="number" name="rt" class="form-input" placeholder="001" required>
+                        <input type="number" name="rt" class="form-input" placeholder="001" min="0" step="1" inputmode="numeric" required>
                     </div>
                     <div class="form-group">
                         <label class="form-label">RW*</label>
-                        <input type="number" name="rw" class="form-input" placeholder="005" required>
+                        <input type="number" name="rw" class="form-input" placeholder="005" min="0" step="1" inputmode="numeric" required>
                     </div>
                 </div>
 
@@ -280,7 +280,7 @@
             </form>
 
             <div class="card-footer">
-                Sudah punya akun? <a href="/login">Masuk di sini</a>
+                Sudah punya akun? <a href="/login-seller">Masuk di sini</a>
             </div>
         </div>
     </div>
@@ -399,6 +399,14 @@
             const pass = document.getElementById('password').value;
             const confirm = document.getElementById('password_confirmation').value;
             if (pass !== confirm) { alert('Password dan Konfirmasi Password tidak cocok!'); return; }
+
+            // Validasi RT / RW: boleh 0 atau angka positif (>= 0)
+            const rtInput = document.querySelector('input[name="rt"]');
+            const rwInput = document.querySelector('input[name="rw"]');
+            const rtVal = rtInput ? parseInt(rtInput.value, 10) : NaN;
+            const rwVal = rwInput ? parseInt(rwInput.value, 10) : NaN;
+            if (isNaN(rtVal) || rtVal < 0) { alert('RT harus berupa angka (>= 0).'); rtInput && rtInput.focus(); return; }
+            if (isNaN(rwVal) || rwVal < 0) { alert('RW harus berupa angka (>= 0).'); rwInput && rwInput.focus(); return; }
 
             // Validasi File
             const fotoPic = document.querySelector('input[name="foto_pic"]').files[0];
