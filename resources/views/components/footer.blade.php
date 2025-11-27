@@ -52,7 +52,7 @@
 			</div>
 		</div>
 			<div class="border-t border-gray-100 pt-8 text-center text-sm text-gray-400 font-medium">
-				&copy; {{ date('Y') }} SiToko. Dibuat dengan <i class="fa-solid fa-heart text-pink-400 mx-1"></i> oleh masyarakat umum.
+				&copy; {{ date('Y') }} SiToko. Dibuat dengan <i class="fa-solid fa-heart text-pink-400 mx-1"></i> oleh Kita.
 			</div>
 	</div>
 </footer>
