@@ -2,6 +2,16 @@
 
 use Illuminate\Support\Facades\Route;
 
+// Halaman cetak laporan
+Route::get('/dashboard-seller/cetaklaporan', function () {
+    return view('seller.cetaklaporan');
+})->name('seller.cetaklaporan');
+
+// Halaman tambah produk
+Route::get('/dashboard-seller/tambahproduk', function () {
+    return view('seller.tambahproduk');
+})->name('seller.tambahproduk');
+
 
 // Route ke halaman Home Pengunjung
 Route::get('/', function () {
@@ -14,33 +24,52 @@ Route::get('/login-seller', function () {
     return view('pengunjung.login');
 });
 
+
 Route::get('/register-seller', function () {
     // Artinya: Buka file "register" yang ada di dalam folder "pengunjung"
     return view('pengunjung.register');
 });
 
+// Seller Dashboard
+Route::get('/dashboard-seller', function () {
+    return view('seller.dashboard');
+})->name('seller.dashboard');
+
+Route::get('/dashboard-seller/statistics', function () {
+    return view('seller.statistics');
+})->name('seller.statistics');
+
+Route::get('/dashboard-seller/produk', function () {
+    return view('seller.produk');
+})->name('seller.produk');
+
+// Halaman tambah produk
+Route::get('/dashboard-seller/tambahproduk', function () {
+    return view('seller.tambahproduk');
+})->name('seller.tambahproduk');
+
+// Halaman cetak laporan
+Route::get('/dashboard-seller/cetaklaporan', function () {
+    return view('seller.cetaklaporan');
+})->name('seller.cetaklaporan');
+
+// Admin Dashboard
 Route::get('/dashboard-admin', function () {
-    // Artinya: Buka file "register" yang ada di dalam folder "pengunjung"
     return view('admin.dashboard');
 });
 
 Route::get('/dashboard-admin/verifikasi', function () {
-    // Artinya: Buka file "register" yang ada di dalam folder "pengunjung"
     return view('admin.verifikasi.verifikasi');
 });
 
 Route::get('/dashboard-admin/detailverifikasi', function () {
-    // Artinya: Buka file "register" yang ada di dalam folder "pengunjung"
     return view('admin.verifikasi.detailverifikasi');
 });
 
 Route::get('/dashboard-admin/seller-data', function () {
-    // Artinya: Buka file "register" yang ada di dalam folder "pengunjung"
     return view('admin.penjual.seller_data');
 });
 
-
 Route::get('/dashboard-admin/reports', function () {
-    // Artinya: Buka file "register" yang ada di dalam folder "pengunjung"
     return view('admin.laporan.laporan');
 });
