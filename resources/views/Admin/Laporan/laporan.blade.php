@@ -13,13 +13,13 @@
         [x-cloak] { display: none !important; }
     </style>
 </head>
-<body class="bg-gray-50 text-gray-800 font-sans antialiased" x-data="reportSystem()">
+<body class="bg-red-50 text-gray-800 font-sans antialiased" x-data="reportSystem()">
 
     <div class="flex h-screen overflow-hidden">
 
         @include('Admin._sidebar', ['active' => 'reports'])
 
-        <main class="flex-1 overflow-x-hidden overflow-y-auto bg-gray-50 p-6 md:p-8">
+        <main class="flex-1 overflow-x-hidden overflow-y-auto bg-red-50 p-6 md:p-8">
             
             <div class="flex flex-col md:flex-row justify-between items-start md:items-center mb-8 gap-4">
                 <div>
