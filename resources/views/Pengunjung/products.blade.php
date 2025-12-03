@@ -70,6 +70,18 @@
             <a href="/products" class="text-[#FF9894] font-semibold text-sm hover:underline">Lihat Semua</a>
         </div>
 
+        @if(!empty($categories) && $categories->count())
+            <div class="mb-4 flex items-center gap-2 overflow-x-auto py-2">
+                <a href="{{ route('products.index', array_merge(request()->query(), ['category' => null])) }}" class="text-sm px-3 py-1 rounded-full border border-gray-200 bg-white text-gray-700 hover:bg-pink-50">Semua</a>
+                @foreach($categories as $cat)
+                    @php $isActive = (string)($activeCategory ?? '') === (string)$cat->id; @endphp
+                    <a href="{{ route('products.index', array_merge(request()->query(), ['category' => $cat->id])) }}" class="text-sm px-3 py-1 rounded-full border {{ $isActive ? 'border-pink-300 bg-[#FF9894] text-white' : 'border-gray-200 bg-white text-gray-700' }} hover:{{ $isActive ? '' : 'bg-pink-50' }}">
+                        {{ $cat->name }}
+                    </a>
+                @endforeach
+            </div>
+        @endif
+
         @if(empty($products) || $products->total() == 0)
             <div class="bg-white rounded-lg p-8 text-center border border-gray-100 shadow-sm">
                 <p class="text-gray-600 font-medium">Produk tidak ditemukan.</p>

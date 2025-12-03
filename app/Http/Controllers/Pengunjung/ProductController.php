@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Pengunjung;
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use App\Models\Product;
+use App\Models\Category;
 use Illuminate\Database\QueryException;
 use Illuminate\Pagination\LengthAwarePaginator;
 
@@ -13,11 +14,11 @@ class ProductController extends Controller
     public function index(Request $request)
     {
         $q = trim($request->query('q', ''));
-
+        $categoryId = $request->query('category');
         try {
             $perPage = 12;
 
-            $productsQuery = Product::with(['seller', 'ratings']);
+            $productsQuery = Product::with(['seller', 'ratings', 'category']);
 
             if (!empty($q)) {
                 $productsQuery = $productsQuery->where(function ($w) use ($q) {
@@ -26,6 +27,11 @@ class ProductController extends Controller
                           $s->where('shop_name', 'like', '%' . $q . '%');
                       });
                 });
+            }
+
+            // Filter by category if requested (expects category id)
+            if (!empty($categoryId)) {
+                $productsQuery = $productsQuery->where('category_id', $categoryId);
             }
 
             $products = $productsQuery->latest()->paginate($perPage);
@@ -61,6 +67,8 @@ class ProductController extends Controller
         return view('pengunjung.products', [
             'products' => $products,
             'q' => $q,
+            'categories' => Category::all(),
+            'activeCategory' => $categoryId,
         ]);
     }
 }

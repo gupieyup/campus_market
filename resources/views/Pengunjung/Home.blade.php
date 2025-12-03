@@ -142,12 +142,22 @@
         
         <div class="grid grid-cols-5 md:grid-cols-10 gap-y-6 gap-x-2 animate-on-scroll bg-white p-4 rounded-xl border border-gray-100 shadow-sm">
             @foreach(($categories ?? []) as $cat)
-            <div class="group cursor-pointer flex flex-col items-center gap-2 transition hover:-translate-y-1">
-                <div class="w-10 h-10 md:w-12 md:h-12 rounded-xl {{ $cat['color'] }} flex items-center justify-center text-lg shadow-sm border border-white group-hover:shadow-md transition-all duration-300">
-                    <i class="fa-solid {{ $cat['icon'] }}"></i>
+                @php $hasId = isset($cat['id']) && !empty($cat['id']); @endphp
+                @if($hasId)
+                <a href="{{ route('products.index', ['category' => $cat['id']]) }}" class="group flex flex-col items-center gap-2 transition hover:-translate-y-1">
+                    <div class="w-10 h-10 md:w-12 md:h-12 rounded-xl {{ $cat['color'] }} flex items-center justify-center text-lg shadow-sm border border-white group-hover:shadow-md transition-all duration-300">
+                        <i class="fa-solid {{ $cat['icon'] }}"></i>
+                    </div>
+                    <span class="text-[10px] md:text-xs font-medium text-gray-600 text-center group-hover:text-pink-600 leading-tight max-w-[60px]">{{ $cat['name'] }}</span>
+                </a>
+                @else
+                <div class="group cursor-default flex flex-col items-center gap-2 opacity-80">
+                    <div class="w-10 h-10 md:w-12 md:h-12 rounded-xl {{ $cat['color'] }} flex items-center justify-center text-lg shadow-sm border border-white transition-all duration-300">
+                        <i class="fa-solid {{ $cat['icon'] }}"></i>
+                    </div>
+                    <span class="text-[10px] md:text-xs font-medium text-gray-600 text-center leading-tight max-w-[60px]">{{ $cat['name'] }}</span>
                 </div>
-                <span class="text-[10px] md:text-xs font-medium text-gray-600 text-center group-hover:text-pink-600 leading-tight max-w-[60px]">{{ $cat['name'] }}</span>
-            </div>
+                @endif
             @endforeach
         </div>
     </section>
