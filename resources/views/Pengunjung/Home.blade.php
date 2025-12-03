@@ -88,8 +88,12 @@
             </a>
 
             <div class="hidden md:flex flex-1 max-w-2xl relative">
-                <input type="text" placeholder="Cari barang di SiToko..." class="w-full border border-gray-300 rounded-lg py-2 px-4 pl-10 focus:outline-none focus:border-[#FF9894] focus:ring-1 focus:ring-[#FF9894] transition-all text-sm">
-                <i class="fa-solid fa-magnifying-glass absolute left-3.5 top-3 text-gray-400 text-sm"></i>
+                    <form action="/products" method="get" class="w-full">
+                    <input name="q" value="{{ request('q') }}" type="text" placeholder="Cari barang di SiToko..." class="w-full border border-gray-300 rounded-lg py-2 px-4 pl-10 focus:outline-none focus:border-[#FF9894] focus:ring-1 focus:ring-[#FF9894] transition-all text-sm">
+                    <button type="submit" class="absolute left-0 top-0 h-full pl-3 pr-3 text-gray-400">
+                        <i class="fa-solid fa-magnifying-glass"></i>
+                    </button>
+                </form>
             </div>
 
             <div class="flex items-center gap-3 shrink-0">
@@ -202,9 +206,7 @@
             </div>
 
             <div class="text-center mt-10">
-                <button class="bg-white border border-[#FF9894] text-[#FF9894] px-8 py-2 rounded-lg font-bold text-sm hover:bg-pink-50 transition shadow-sm">
-                    Muat Lebih Banyak
-                </button>
+                {{ $products->appends(request()->query())->links('pagination::tailwind') }}
             </div>
         @endif
     </section>

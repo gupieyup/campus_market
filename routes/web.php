@@ -2,6 +2,7 @@
 
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\Pengunjung\HomeController;
+use App\Http\Controllers\Pengunjung\ProductController;
 
 // Halaman cetak laporan
 Route::get('/dashboard-seller/cetaklaporan', function () {
@@ -16,6 +17,9 @@ Route::get('/dashboard-seller/tambahproduk', function () {
 
 // Route ke halaman Home Pengunjung (via controller)
 Route::get('/', [HomeController::class, 'index']);
+
+// Product listing / search page
+Route::get('/products', [ProductController::class, 'index'])->name('products.index');
 
 // Route ke halaman Home Pengunjung
 Route::get('/detailproduk', function () {

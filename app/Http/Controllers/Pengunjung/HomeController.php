@@ -12,13 +12,30 @@ class HomeController extends Controller
 {
     public function index(Request $request)
     {
+        $q = trim($request->query('q', ''));
         // Fetch latest products with seller and ratings. If the products table doesn't exist
         // (e.g. migrations haven't been run), catch the exception and return a demo fallback
         // so the frontend can render without crashing.
         try {
-            $productsRaw = Product::with(['seller', 'ratings'])->latest()->take(12)->get();
+            $perPage = 12;
+            $page = max(1, (int) $request->query('page', 1));
 
-            $products = $productsRaw->map(function ($p) {
+            $productsQuery = Product::with(['seller', 'ratings']);
+
+            if (!empty($q)) {
+                $productsQuery = $productsQuery->where(function ($w) use ($q) {
+                    $w->where('name', 'like', '%' . $q . '%')
+                      ->orWhereHas('seller', function ($s) use ($q) {
+                          $s->where('shop_name', 'like', '%' . $q . '%');
+                      });
+                });
+            }
+
+            // Use paginate so we can render pagination links in the view
+            $productsPaginated = $productsQuery->latest()->paginate($perPage);
+
+            // Transform each product into a view-friendly array
+            $productsPaginated->getCollection()->transform(function ($p) {
                 $avg = $p->ratings->count() ? round($p->ratings->avg('rating'), 1) : 4.8;
                 return [
                     'name' => $p->name,
@@ -28,10 +45,12 @@ class HomeController extends Controller
                     'sold' => property_exists($p, 'sold') ? ($p->sold ?? '0') : '0',
                     'img' => $p->image ? asset('storage/' . $p->image) : 'https://images.unsplash.com/photo-1544947950-fa07a98d237f?w=500&q=80',
                 ];
-            })->toArray();
+            });
+
+            $products = $productsPaginated;
         } catch (QueryException $e) {
             // Demo fallback (matches the previous demo data used in the view)
-            $products = [
+            $items = [
                 ['name' => 'Laptop Gaming ASUS ROG Bekas Mulus', 'price' => 'Rp 8.500.000', 'location' => 'Jakarta Selatan', 'rating' => '4.8', 'sold' => '12', 'img' => 'https://images.unsplash.com/photo-1593640408182-31c70c8268f5?w=500&q=80'],
                 ['name' => 'Kemeja Flannel Uniqlo Size L', 'price' => 'Rp 150.000', 'location' => 'Bandung', 'rating' => '4.9', 'sold' => '5', 'img' => 'https://images.unsplash.com/photo-1596755094514-f87e34085b2c?w=500&q=80'],
                 ['name' => 'Kalkulus Jilid 1 Purcell Edisi 9', 'price' => 'Rp 80.000', 'location' => 'Semarang', 'rating' => '5.0', 'sold' => '30', 'img' => 'https://images.unsplash.com/photo-1544947950-fa07a98d237f?w=500&q=80'],
@@ -43,6 +62,14 @@ class HomeController extends Controller
                 ['name' => 'Keyboard Keychron K2 V2', 'price' => 'Rp 1.100.000', 'location' => 'Jakarta Pusat', 'rating' => '4.8', 'sold' => '15', 'img' => 'https://images.unsplash.com/photo-1587829741301-dc798b91a603?w=500&q=80'],
                 ['name' => 'Meja Belajar Minimalis Ikea', 'price' => 'Rp 250.000', 'location' => 'Bogor', 'rating' => '4.5', 'sold' => '3', 'img' => 'https://images.unsplash.com/photo-1519947486511-4639940be43a?w=500&q=80'],
             ];
+
+            $perPage = 12;
+            $page = max(1, (int) $request->query('page', 1));
+
+            $products = new LengthAwarePaginator(array_slice($items, ($page - 1) * $perPage, $perPage), count($items), $perPage, $page, [
+                'path' => url()->current(),
+                'query' => $request->query(),
+            ]);
         }
 
         // Attempt to load categories from the database. If categories table is missing
