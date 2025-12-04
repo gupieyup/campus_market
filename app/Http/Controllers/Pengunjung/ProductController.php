@@ -107,7 +107,9 @@ class ProductController extends Controller
                     'url'      => route('products.show', $p->id),
                     'name'     => $p->name,
                     'price'    => 'Rp ' . number_format($p->price ?? 0, 0, ',', '.'),
-                    'location' => $p->seller->province ?? ($p->seller->address ?? 'Lokasi'),
+                    'location' => $p->seller->region->name 
+                                ?? $p->seller->region->region_name 
+                                ?? 'Tidak diketahui',
                     'rating'   => $avg,
                     'sold'     => property_exists($p, 'sold') ? ($p->sold ?? '0') : '0',
                     'img'      => function_exists('asset') ? (

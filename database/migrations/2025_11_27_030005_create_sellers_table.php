@@ -13,14 +13,17 @@ return new class extends Migration
     {
         Schema::create('sellers', function (Blueprint $table) {
             $table->id();
-            $table->foreignId('user_id')->unique()->constrained()->onDelete('cascade');
+            $table->unsignedBigInteger('user_id');
             $table->string('shop_name');
             $table->text('shop_description')->nullable();
             $table->string('shop_image')->nullable();
             $table->string('phone');
             $table->string('address');
-            $table->string('province');
+            $table->unsignedBigInteger('region_id');
             $table->timestamps();
+
+            $table->foreign('region_id')->references('id')->on('region')->onDelete('cascade');
+            $table->foreign('user_id')->references('id')->on('users')->onDelete('cascade');
         });
     }
 
@@ -29,6 +32,10 @@ return new class extends Migration
      */
     public function down(): void
     {
+        Schema::table('sellers', function (Blueprint $table) {
+            $table->dropForeign(['user_id']);
+            $table->dropForeign(['region_id']);
+        });
         Schema::dropIfExists('sellers');
     }
 };

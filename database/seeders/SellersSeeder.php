@@ -21,7 +21,7 @@ class SellersSeeder extends Seeder
                 'shop_description' => 'Pilihan batik modern dan tradisional.',
                 'phone' => '081200000002',
                 'address' => 'Jl. Batik No.2',
-                'province' => 'Jawa Tengah',
+                'region_id' => 1,
                 'created_at' => now(),
             ],
             [
@@ -30,7 +30,7 @@ class SellersSeeder extends Seeder
                 'shop_description' => 'Perhiasan dan aksesoris handmade.',
                 'phone' => '081200000003',
                 'address' => 'Jl. Gelang No.3',
-                'province' => 'Jawa Barat',
+                'region_id' => 2,
                 'created_at' => now(),
             ],
             [
@@ -39,7 +39,7 @@ class SellersSeeder extends Seeder
                 'shop_description' => 'Alat tulis dan kebutuhan kantor.',
                 'phone' => '081200000004',
                 'address' => 'Jl. Kertas No.4',
-                'province' => 'DKI Jakarta',
+                'region_id' => 3,
                 'created_at' => now(),
             ],
         ]);

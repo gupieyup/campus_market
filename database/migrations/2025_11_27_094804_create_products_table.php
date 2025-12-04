@@ -20,12 +20,10 @@ return new class extends Migration
             $table->integer('stock');
             $table->string('image');
             $table->unsignedBigInteger('category_id');
-            $table->unsignedBigInteger('region_id');
             $table->boolean('is_active'); 
             $table->timestamps();
 
             $table->foreign('category_id')->references('id')->on('categories')->onDelete('cascade');
-            $table->foreign('region_id')->references('id')->on('region')->onDelete('cascade');
         });
     }
 
@@ -38,7 +36,6 @@ return new class extends Migration
     {
         Schema::table('products', function (Blueprint $table) {
             $table->dropForeign(['category_id']);
-            $table->dropForeign(['region_id']);
         });
         Schema::dropIfExists('products');
     }
