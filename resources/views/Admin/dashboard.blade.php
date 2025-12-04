@@ -12,6 +12,7 @@
         body { font-family: 'Inter', sans-serif; }
     </style>
 </head>
+
 <body class="bg-red-50 text-gray-800 font-sans antialiased">
 
     <div class="flex h-screen overflow-hidden">
@@ -218,5 +219,10 @@
             }
         });
     </script>
+    
+    <form id="logout-form" action="{{ route('logout') }}" method="POST" style="display: none;">
+        @csrf
+    </form>
+    
 </body>
 </html>

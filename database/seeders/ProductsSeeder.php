@@ -21,7 +21,7 @@ class ProductsSeeder extends Seeder
                 'name' => 'Baju Batik',
                 'price' => 150000,
                 'stock' => 10,
-                'image' => 'images/products/batik-pink.jpg',
+                'image' => 'images/products/batik-pink.jpeg',
                 'seller_id' => 1,
                 'category_id' => 1,
                 'region_id' => 1,

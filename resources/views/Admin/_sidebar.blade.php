@@ -35,5 +35,13 @@
                 <span class="ml-auto bg-white text-red-500 py-0.5 px-2 rounded-full text-xs font-bold">{{ $verifCount }}</span>
             @endif
         </a>
+        
+        <a href="{{ route('logout') }}"
+            class="flex items-center px-4 py-3 text-gray-600 hover:bg-red-50 hover:text-red-500 rounded-xl transition-colors"
+            onclick="event.preventDefault(); document.getElementById('logout-form').submit();">
+            <svg class="w-5 h-5 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1"></path></svg>
+            Logout
+        </a>
+        
     </nav>
 </aside>
