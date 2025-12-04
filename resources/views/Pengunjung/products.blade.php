@@ -89,17 +89,32 @@
         @else
             <div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-3 md:gap-4">
                 @foreach($products as $index => $item)
-                <div class="bg-white rounded-lg border border-gray-200 shadow-sm hover:shadow-[0_4px_12px_rgba(0,0,0,0.1)] transition-all duration-300 cursor-pointer group overflow-hidden animate-on-scroll flex flex-col h-full">
+                <a href="{{ $item['url'] }}" class="bg-white rounded-lg border border-gray-200 shadow-sm hover:shadow-[0_4px_12px_rgba(0,0,0,0.1)] transition-all duration-300 cursor-pointer group overflow-hidden animate-on-scroll flex flex-col h-full no-underline text-inherit">
                     <div class="relative aspect-square bg-gray-100 overflow-hidden">
                         <img src="{{ $item['img'] }}" alt="{{ $item['name'] }}" class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500">
                     </div>
                     <div class="p-3 flex flex-col flex-1">
-                        <h4 class="text-xs md:text-sm text-gray-700 font-normal leading-snug line-clamp-2 mb-1 group-hover:text-pink-600 transition-colors">{{ $item['name'] }}</h4>
-                        <div class="mt-1 mb-2"><p class="text-sm md:text-base font-bold text-slate-900">{{ $item['price'] }}</p></div>
-                        <div class="flex items-center gap-1 mt-auto text-[10px] text-gray-500"><i class="fa-solid fa-star text-yellow-400"></i><span class="font-medium text-gray-600">{{ $item['rating'] }}</span><span class="text-gray-300 mx-1">|</span><span>Terjual {{ $item['sold'] }}</span></div>
-                        <div class="flex items-center gap-1 mt-1 text-[10px] text-gray-400"><i class="fa-solid fa-shop"></i><span class="truncate max-w-[100px]">{{ $item['location'] }}</span></div>
+                        <h4 class="text-xs md:text-sm text-gray-700 font-normal leading-snug line-clamp-2 mb-1 group-hover:text-pink-600 transition-colors">
+                            {{ $item['name'] }}
+                        </h4>
+            
+                        <div class="mt-1 mb-2">
+                            <p class="text-sm md:text-base font-bold text-slate-900">{{ $item['price'] }}</p>
+                        </div>
+            
+                        <div class="flex items-center gap-1 mt-auto text-[10px] text-gray-500">
+                            <i class="fa-solid fa-star text-yellow-400"></i>
+                            <span class="font-medium text-gray-600">{{ $item['rating'] }}</span>
+                            <span class="text-gray-300 mx-1">|</span>
+                            <span>Terjual {{ $item['sold'] }}</span>
+                        </div>
+            
+                        <div class="flex items-center gap-1 mt-1 text-[10px] text-gray-400">
+                            <i class="fa-solid fa-shop"></i>
+                            <span class="truncate max-w-[100px]">{{ $item['location'] }}</span>
+                        </div>
                     </div>
-                </div>
+                </a>
                 @endforeach
             </div>
 

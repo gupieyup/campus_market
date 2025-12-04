@@ -114,7 +114,7 @@
             <div class="md:col-span-4 lg:col-span-4">
                 <div class="sticky top-24">
                     <div class="aspect-square rounded-xl overflow-hidden border border-gray-100 card-shadow relative group bg-white">
-                        <img src="{{ asset('storage/' . $product->image) }}" alt="{{ $product->name }}" class="w-full h-full object-cover transition duration-300 group-hover:scale-105" onerror="this.onerror=null;this.src='https://via.placeholder.com/600x600?text=No+Image';">
+                        <img src="{{ $product->image_url }}" alt="{{ $product->name }}" class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500">
                     </div>
                 </div>
             </div>
@@ -281,7 +281,7 @@
                         <div class="grid grid-cols-2 gap-4">
                             <div>
                                 <label class="block text-xs font-bold text-gray-500 mb-1">Nama</label>
-                                <input type="text" id="review-name" class="form-input w-full p-2.5 text-sm" placeholder="Nama Kamu">
+                                <input type="text" id="review-name" class="form-input w-full p-2.5 text-sm" placeholder="Nama Lengkap">
                             </div>
                             <div>
                                 <label class="block text-xs font-bold text-gray-500 mb-1">No. HP</label>
