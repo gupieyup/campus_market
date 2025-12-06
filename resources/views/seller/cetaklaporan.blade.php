@@ -65,7 +65,7 @@
             <div class="pb-4 border-b border-gray-100">
                 <h2 class="text-2xl font-bold text-gray-800">Laporan Penjual SiToko</h2>
                 <!-- Tanggal Real-time -->
-                <p class="text-sm text-gray-500">SiToko | Tanggal: <span id="currentDate"></span></p>
+                <p class="text-sm text-gray-500">SiToko | Tanggal: {{ isset($generatedAt) ? $generatedAt->format('d F Y') : now()->format('d F Y') }}</p>
             </div>
             
             <!-- LAPORAN 1: STOK MENURUN -->
@@ -83,8 +83,23 @@
                             <th class="px-4 py-2 text-center text-xs font-medium text-gray-600 uppercase">Stok</th>
                         </tr>
                     </thead>
-                    <tbody class="bg-white divide-y divide-gray-100" id="report1">
-                        <!-- Data akan diisi oleh JS -->
+                    <tbody class="bg-white divide-y divide-gray-100">
+                        @if(!empty($noSeller) && $noSeller)
+                            <tr>
+                                <td colspan="6" class="px-6 py-8 text-center text-yellow-700">Anda belum terdaftar sebagai penjual. Tidak ada data untuk dicetak.</td>
+                            </tr>
+                        @else
+                            @foreach($stockSorted as $i => $p)
+                                <tr class="hover:bg-gray-50">
+                                    <td class="px-4 py-2 whitespace-nowrap text-sm text-gray-700 text-left">{{ $i + 1 }}</td>
+                                    <td class="px-4 py-2 text-sm font-medium text-gray-900">{{ $p['name'] }}</td>
+                                    <td class="px-4 py-2 whitespace-nowrap text-sm text-gray-700">{{ $p['category'] }}</td>
+                                    <td class="px-4 py-2 whitespace-nowrap text-sm font-medium text-red-500 text-center">{{ number_format($p['rating'],1) }}</td>
+                                    <td class="px-4 py-2 whitespace-nowrap text-sm text-gray-700 text-right">Rp {{ number_format($p['price'],0,',','.') }}</td>
+                                    <td class="px-4 py-2 whitespace-nowrap text-sm font-medium text-center {{ $p['stock'] < 2 ? 'text-red-600' : 'text-gray-700' }}">{{ number_format($p['stock'],0,',','.') }}</td>
+                                </tr>
+                            @endforeach
+                        @endif
                     </tbody>
                 </table>
             </section>
@@ -107,8 +122,23 @@
                             <th class="px-4 py-2 text-center text-xs font-medium text-gray-600 uppercase">Stok</th>
                         </tr>
                     </thead>
-                    <tbody class="bg-white divide-y divide-gray-100" id="report2">
-                        <!-- Data akan diisi oleh JS -->
+                    <tbody class="bg-white divide-y divide-gray-100">
+                        @if(!empty($noSeller) && $noSeller)
+                            <tr>
+                                <td colspan="6" class="px-6 py-8 text-center text-yellow-700">Anda belum terdaftar sebagai penjual. Tidak ada data untuk dicetak.</td>
+                            </tr>
+                        @else
+                            @foreach($ratingSorted as $i => $p)
+                                <tr class="hover:bg-gray-50">
+                                    <td class="px-4 py-2 whitespace-nowrap text-sm text-gray-700 text-left">{{ $i + 1 }}</td>
+                                    <td class="px-4 py-2 text-sm font-medium text-gray-900">{{ $p['name'] }}</td>
+                                    <td class="px-4 py-2 whitespace-nowrap text-sm text-gray-700">{{ $p['category'] }}</td>
+                                    <td class="px-4 py-2 whitespace-nowrap text-sm font-medium text-red-500 text-center">{{ number_format($p['rating'],1) }}</td>
+                                    <td class="px-4 py-2 whitespace-nowrap text-sm text-gray-700 text-right">Rp {{ number_format($p['price'],0,',','.') }}</td>
+                                    <td class="px-4 py-2 whitespace-nowrap text-sm font-medium text-center {{ $p['stock'] < 2 ? 'text-red-600' : 'text-gray-700' }}">{{ number_format($p['stock'],0,',','.') }}</td>
+                                </tr>
+                            @endforeach
+                        @endif
                     </tbody>
                 </table>
             </section>
@@ -131,77 +161,27 @@
                             <th class="px-4 py-2 text-center text-xs font-medium uppercase">Stok</th>
                         </tr>
                     </thead>
-                    <tbody class="bg-white divide-y divide-gray-100" id="report3">
-                        <!-- Data akan diisi oleh JS -->
+                    <tbody class="bg-white divide-y divide-gray-100">
+                        @if(!empty($noSeller) && $noSeller)
+                            <tr>
+                                <td colspan="6" class="px-6 py-8 text-center text-yellow-700">Anda belum terdaftar sebagai penjual. Tidak ada data untuk dicetak.</td>
+                            </tr>
+                        @else
+                            @foreach($critical as $i => $p)
+                                <tr class="table-critical-row bg-red-50/50">
+                                    <td class="px-4 py-2 whitespace-nowrap text-sm text-gray-700 text-left">{{ $i + 1 }}</td>
+                                    <td class="px-4 py-2 text-sm font-medium text-gray-900">{{ $p['name'] }}</td>
+                                    <td class="px-4 py-2 whitespace-nowrap text-sm text-gray-700">{{ $p['category'] }}</td>
+                                    <td class="px-4 py-2 whitespace-nowrap text-sm font-medium text-red-500 text-center">{{ number_format($p['rating'],1) }}</td>
+                                    <td class="px-4 py-2 whitespace-nowrap text-sm text-gray-700 text-right">Rp {{ number_format($p['price'],0,',','.') }}</td>
+                                    <td class="px-4 py-2 whitespace-nowrap text-sm font-medium text-center text-red-600">{{ number_format($p['stock'],0,',','.') }}</td>
+                                </tr>
+                            @endforeach
+                        @endif
                     </tbody>
                 </table>
             </section>
         </div>
-
     </main>
-
-    <script>
-        // Data Produk Fiktif
-        const rawProductData = [
-            { id: 1, name: 'Buku Saku Kuliah Premium', category: 'Alat Tulis', price: 85000, stock: 150, rating: 5.0 },
-            { id: 2, name: 'Powerbank 10000mAh', category: 'Elektronik', price: 250000, stock: 40, rating: 4.5 },
-            { id: 3, name: 'Headset Gaming Super Bass', category: 'Elektronik', price: 150000, stock: 5, rating: 3.8 },
-            { id: 4, name: 'Kaos Kampus Edisi 2024', category: 'Pakaian', price: 120000, stock: 1400, rating: 4.9 },
-            { id: 5, name: 'Gantungan Kunci Logo Kampus', category: 'Aksesoris', price: 15000, stock: 1, rating: 4.2 }, // Kritis
-            { id: 6, name: 'Mi Instan Rasa Kari Ayam', category: 'Makanan', price: 3500, stock: 0, rating: 4.7 } // Kritis
-        ];
-
-        // Helper untuk format Rupiah
-        const formatRupiah = (number) => {
-            return new Intl.NumberFormat('id-ID', {
-                style: 'currency',
-                currency: 'IDR',
-                minimumFractionDigits: 0
-            }).format(number);
-        };
-
-        // Fungsi untuk me-render satu baris laporan
-        const renderRow = (product, index, isCritical = false) => {
-            const rowClass = isCritical ? 'table-critical-row bg-red-50/50' : 'hover:bg-gray-50';
-            
-            return `
-                <tr class="${rowClass}">
-                    <td class="px-4 py-2 whitespace-nowrap text-sm text-gray-700 text-left">${index + 1}</td>
-                    <td class="px-4 py-2 text-sm font-medium text-gray-900">${product.name}</td>
-                    <td class="px-4 py-2 whitespace-nowrap text-sm text-gray-700">${product.category}</td>
-                    <td class="px-4 py-2 whitespace-nowrap text-sm font-medium text-red-500 text-center">${product.rating.toFixed(1)}</td>
-                    <td class="px-4 py-2 whitespace-nowrap text-sm text-gray-700 text-right">${formatRupiah(product.price)}</td>
-                    <td class="px-4 py-2 whitespace-nowrap text-sm font-medium text-center ${product.stock < 2 ? 'text-red-600' : 'text-gray-700'}">${product.stock.toLocaleString('id-ID')}</td>
-                </tr>
-            `;
-        };
-
-        // Fungsi utama untuk menjalankan laporan
-        const generateReports = () => {
-            
-            // --- Laporan 1: Stok Menurun ---
-            const report1Data = [...rawProductData].sort((a, b) => b.stock - a.stock);
-            const report1Html = report1Data.map(renderRow).join('');
-            document.getElementById('report1').innerHTML = report1Html;
-
-            // --- Laporan 2: Rating Menurun ---
-            const report2Data = [...rawProductData].sort((a, b) => b.rating - a.rating);
-            const report2Html = report2Data.map(renderRow).join('');
-            document.getElementById('report2').innerHTML = report2Html;
-            
-            // --- Laporan 3: Stok Kritis (< 2) ---
-            const report3Data = rawProductData.filter(p => p.stock < 2);
-            const report3Html = report3Data.map((p, i) => renderRow(p, i, true)).join('');
-            document.getElementById('report3').innerHTML = report3Html;
-
-            // Set tanggal real-time
-            document.getElementById('currentDate').textContent = new Date().toLocaleDateString('id-ID', {
-                day: 'numeric', month: 'long', year: 'numeric'
-            });
-        };
-
-        // Panggil fungsi saat dokumen dimuat
-        document.addEventListener('DOMContentLoaded', generateReports);
-    </script>
 </body>
 </html>

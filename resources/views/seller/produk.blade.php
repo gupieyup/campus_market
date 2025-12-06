@@ -5,6 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>SiToko - Daftar Produk</title>
     <script src="https://cdn.tailwindcss.com"></script>
+    <meta name="csrf-token" content="{{ csrf_token() }}">
     
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
@@ -46,37 +47,39 @@
         <div class="bg-white rounded-2xl p-4 shadow-md border border-red-100 mb-6">
             
             <!-- Tab Navigasi -->
-            <div class="flex space-x-6 border-b border-gray-100 text-sm font-medium">
-                <a href="#" class="pb-3 text-red-500 border-b-2 border-red-500 transition-colors">Semua Produk (29)</a>
-                <a href="#" class="pb-3 text-gray-500 hover:text-red-500 hover:border-b-2 hover:border-red-200 transition-colors">Aktif (25)</a>
-                <a href="#" class="pb-3 text-gray-500 hover:text-red-500 hover:border-b-2 hover:border-red-200 transition-colors">Nonaktif (5)</a>
-                <a href="#" class="pb-3 text-gray-500 hover:text-red-500 hover:border-b-2 hover:border-red-200 transition-colors">Draf (2)</a>
+            <div id="productTabs" class="flex space-x-6 border-b border-gray-100 text-sm font-medium">
+                <a href="#" class="pb-3 text-red-500 border-b-2 border-red-500 transition-colors">Semua Produk</a>
+                <a href="#" class="pb-3 text-gray-500 hover:text-red-500 hover:border-b-2 hover:border-red-200 transition-colors">Aktif</a>
+                <a href="#" class="pb-3 text-gray-500 hover:text-red-500 hover:border-b-2 hover:border-red-200 transition-colors">Nonaktif</a>
             </div>
 
             <!-- Filter Bar -->
             <div class="flex flex-wrap items-center space-y-3 sm:space-y-0 sm:space-x-4 mt-4">
                 
                 <!-- Pencarian -->
-                <div class="relative flex-1 min-w-[200px]">
-                    <input type="text" placeholder="Cari nama produk atau SKU" class="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-xl text-sm focus:ring-red-500 focus:border-red-500">
+                    <div class="relative flex-1 min-w-[200px]">
+                    <input id="productSearch" type="text" placeholder="Cari nama produk atau SKU" class="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-xl text-sm focus:ring-red-500 focus:border-red-500">
                     <svg class="w-4 h-4 text-gray-400 absolute left-3 top-1/2 transform -translate-y-1/2" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path></svg>
                 </div>
 
-                <!-- Dropdown Filter -->
-                <select class="px-4 py-2 border border-gray-300 rounded-xl text-sm font-medium focus:ring-red-500 focus:border-red-500">
-                    <option>Kategori</option>
-                    <option>Makanan</option>
-                    <option>Elektronik</option>
+                <!-- Dropdowns: categories come from DB, filter and sort wired to DB stats -->
+                <select id="categorySelect" class="px-4 py-2 border border-gray-300 rounded-xl text-sm font-medium focus:ring-red-500 focus:border-red-500">
+                    <option value="">Semua Kategori</option>
+                    @if(!empty($categories))
+                        @foreach($categories as $c)
+                            <option value="{{ $c->id }}">{{ $c->name }}</option>
+                        @endforeach
+                    @endif
                 </select>
-                <select class="px-4 py-2 border border-gray-300 rounded-xl text-sm font-medium focus:ring-red-500 focus:border-red-500">
-                    <option>Filter</option>
-                    <option>Stok Habis</option>
-                    <option>Skor Rendah</option>
+                <select id="filterSelect" class="px-4 py-2 border border-gray-300 rounded-xl text-sm font-medium focus:ring-red-500 focus:border-red-500">
+                    <option value="">Filter</option>
+                    <option value="stok-habis">Stok Habis</option>
+                    <option value="skor-rendah">Skor Rendah</option>
                 </select>
-                <select class="px-4 py-2 border border-gray-300 rounded-xl text-sm font-medium focus:ring-red-500 focus:border-red-500">
-                    <option>Urutkan</option>
-                    <option>Terbaru</option>
-                    <option>Terlaris</option>
+                <select id="sortSelect" class="px-4 py-2 border border-gray-300 rounded-xl text-sm font-medium focus:ring-red-500 focus:border-red-500">
+                    <option value="">Urutkan</option>
+                    <option value="terbaru">Terbaru</option>
+                    <option value="terlaris">Terlaris</option>
                 </select>
 
             </div>
@@ -98,214 +101,301 @@
                         <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Atur</th>
                     </tr>
                 </thead>
-                <tbody class="bg-white divide-y divide-gray-100" id="productList">
-                    <!-- Product rows will be injected by JavaScript -->
+                <tbody class="bg-white divide-y divide-gray-100">
+                    @if(!empty($noSeller) && $noSeller)
+                        <tr>
+                            <td colspan="6" class="px-6 py-8 text-center text-yellow-700">
+                                Anda belum terdaftar sebagai penjual. Tambahkan data penjual terlebih dahulu.
+                            </td>
+                        </tr>
+                    @else
+                                @forelse($products as $product)
+                                    <tr class="hover:bg-red-50/50 font-medium" data-active="{{ $product->is_active ? '1' : '0' }}" data-category="{{ $product->category_id }}" data-rating="{{ $productRatings[$product->id] ?? 0 }}" data-sold="{{ $productSold[$product->id] ?? 0 }}" data-order="{{ $loop->index }}">
+                                <td class="p-4"><input type="checkbox" class="rounded text-red-500 border-gray-300 focus:ring-red-500"></td>
+                                <td class="px-6 py-4 whitespace-nowrap">
+                                    <div class="flex items-center">
+                                        <div class="flex-shrink-0 h-10 w-10">
+                                            <img class="h-10 w-10 rounded-lg object-cover" src="{{ $product->image ?? '/images/products/default.png' }}" alt="{{ $product->name }}">
+                                        </div>
+                                        <div class="ml-4">
+                                            <div class="text-gray-900 truncate max-w-xs">{{ $product->name }}</div>
+                                            <div class="text-gray-500 text-xs">ID: {{ $product->id }}</div>
+                                        </div>
+                                    </div>
+                                </td>
+                                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">Rp {{ number_format($product->price,0,',','.') }}</td>
+                                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">{{ number_format($product->stock ?? 0,0,',','.') }}</td>
+                                <td class="px-6 py-4 whitespace-nowrap">
+                                    @if($product->is_active)
+                                        <span class="px-2 py-1 bg-green-100 text-green-700 rounded-full text-xs">Aktif</span>
+                                    @else
+                                        <span class="px-2 py-1 bg-gray-100 text-gray-600 rounded-full text-xs">Nonaktif</span>
+                                    @endif
+                                </td>
+                                <td class="px-6 py-4 whitespace-nowrap text-sm font-medium">
+                                        <div class="flex items-center space-x-2">
+                                        <a href="{{ route('seller.produk.edit', $product->id) }}" class="action-btn-edit px-3 py-1 text-xs rounded-lg border border-gray-200 hover:bg-gray-50">Edit</a>
+                                        <button data-action="toggle" data-id="{{ $product->id }}" class="action-btn-toggle px-3 py-1 text-xs rounded-lg border border-gray-200 hover:bg-gray-50">
+                                            @if($product->is_active)
+                                                Nonaktifkan
+                                            @else
+                                                Aktifkan
+                                            @endif
+                                        </button>
+
+                                        <button data-action="delete" data-id="{{ $product->id }}" class="action-btn-delete px-3 py-1 text-xs rounded-lg bg-red-100 text-red-700 hover:bg-red-200">Hapus</button>
+                                    </div>
+                                </td>
+                            </tr>
+                        @empty
+                            <tr>
+                                <td colspan="6" class="px-6 py-8 text-center text-gray-500">Belum ada produk. Tambahkan produk baru.</td>
+                            </tr>
+                        @endforelse
+                    @endif
                 </tbody>
             </table>
         </div>
 
     </main>
+    
+    @if(session('success'))
+        <script>window.alert('{{ session('success') }}');</script>
+    @endif
 
-    <script>
-        // Data Produk Fiktif
-        const productData = [
-            {
-                id: 1,
-                name: 'Sepatu NK42 Hitam',
-                sku: 'NK42HITAM',
-                image: 'https://placehold.co/40x40/000000/FFFFFF?text=SKU',
-                price: 75000000,
-                stock: null, // Induk tidak memiliki stok
-                score: 'Sempurna',
-                views: 413,
-                sales: 434,
-                isActive: true,
-                variants: [
-                    { name: 'Hitam', sku: 'S64-Hitam', price: 2500000, stock: 40, score: 'Baik', views: 32, sales: 12, isActive: true },
-                    { name: 'Putih', sku: 'S64-Putih', price: 2500000, stock: 1400, score: 'Cukup', views: 44, sales: 5, isActive: true },
-                    { name: 'Hitam Gold', sku: 'S64-HG', price: 1240000, stock: 12, score: 'Kurang', views: 0, sales: 0, isActive: false },
-                ]
-            },
-            {
-                id: 2,
-                name: 'Buku Saku Kuliah Premium',
-                sku: 'BSK-P01',
-                image: 'https://placehold.co/40x40/FCA5A5/FFFFFF?text=BUK',
-                price: 85000,
-                stock: 150,
-                score: 'Sempurna',
-                views: 1200,
-                sales: 1050,
-                isActive: true,
-                variants: []
-            },
-            {
-                id: 3,
-                name: 'Headset Gaming Super Bass',
-                sku: 'HGSB-L3',
-                image: 'https://placehold.co/40x40/6366F1/FFFFFF?text=HDS',
-                price: 150000,
-                stock: 5, // Stok Rendah
-                score: 'Cukup',
-                views: 70,
-                sales: 15,
-                isActive: false,
-                variants: []
-            }
-        ];
+<div id="toast" class="fixed right-6 bottom-6 z-50 hidden">
+    <div id="toast-msg" class="px-4 py-2 rounded bg-gray-800 text-white shadow">Pesan</div>
+</div>
 
-        // Helper untuk format Rupiah
-        const formatRupiah = (number) => {
-            return new Intl.NumberFormat('id-ID', {
-                style: 'currency',
-                currency: 'IDR',
-                minimumFractionDigits: 0
-            }).format(number);
-        };
+<script>
+    (function(){
+        const csrf = document.querySelector('meta[name="csrf-token"]').getAttribute('content');
 
-        // Helper untuk mendapatkan warna skor (Masih diperlukan untuk varian/score)
-        const getScoreColor = (score) => {
-            switch (score) {
-                case 'Sempurna': return 'bg-green-100 text-green-700';
-                case 'Baik': return 'bg-emerald-100 text-emerald-700';
-                case 'Cukup': return 'bg-yellow-100 text-yellow-700';
-                case 'Kurang': return 'bg-red-100 text-red-700';
-                default: return 'bg-gray-100 text-gray-500';
-            }
-        };
+        function showToast(message, timeout = 3000) {
+            const toast = document.getElementById('toast');
+            const msg = document.getElementById('toast-msg');
+            msg.textContent = message;
+            toast.classList.remove('hidden');
+            setTimeout(()=>{ toast.classList.add('hidden'); }, timeout);
+        }
 
-        // Helper untuk membuat Toggle Switch HTML
-        const createToggleSwitch = (id, isActive) => {
-            const checked = isActive ? 'checked' : '';
-            return `
-                <label class="relative inline-flex items-center cursor-pointer">
-                    <input type="checkbox" id="toggle-${id}" ${checked} class="sr-only toggle-checkbox">
-                    <div class="w-9 h-5 bg-gray-200 rounded-full peer-focus:outline-none peer-focus:ring-2 peer-focus:ring-red-300 toggle-label">
-                        <div class="absolute top-[2px] left-[2px] w-4 h-4 bg-white rounded-full transition-transform duration-300 toggle-circle"></div>
-                    </div>
-                </label>
-            `;
-        };
-        
-        // Fungsi untuk me-render satu baris produk
-        const renderProductRow = (product, isVariant = false) => {
-            const rowClass = isVariant ? 'bg-gray-50/50 text-xs' : 'font-medium';
-            // Variabel viewsText, salesText, dan score tidak digunakan lagi di render
-            // const viewsText = product.views ? product.views.toLocaleString('id-ID') : 0;
-            // const salesText = product.sales ? product.sales.toLocaleString('id-ID') : 0;
-            const stockText = product.stock !== null ? product.stock.toLocaleString('id-ID') : '-';
-            const priceText = formatRupiah(product.price);
-            const toggleId = isVariant ? `variant-${product.sku}` : `product-${product.id}`;
-
-            // Jika produk induk, tampilkan total harga dan hilangkan stok
-            const parentPriceDisplay = !isVariant && product.variants.length > 0 ? `<span class="text-sm text-gray-500">Mulai dari</span><br/>${priceText}` : priceText;
-
-            // Baris Utama Produk/Varian
-            let rowHtml = `
-                <tr class="hover:bg-red-50/50 ${rowClass}">
-                    <td class="p-4"><input type="checkbox" class="rounded text-red-500 border-gray-300 focus:ring-red-500"></td>
-                    <td class="px-6 py-4 whitespace-nowrap">
-                        <div class="flex items-center">
-                            <div class="flex-shrink-0 h-10 w-10">
-                                <img class="h-10 w-10 rounded-lg" src="${product.image}" alt="${product.name}">
-                            </div>
-                            <div class="ml-4">
-                                <div class="text-gray-900 truncate max-w-xs">${isVariant ? product.name : product.name}</div>
-                                <div class="text-gray-500 text-xs">SKU: ${product.sku}</div>
-                            </div>
-                        </div>
-                    </td>
-                    <!-- Kolom Statistik Dihapus -->
-                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">${parentPriceDisplay}</td>
-                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">${stockText}</td>
-                    <td class="px-6 py-4 whitespace-nowrap">${createToggleSwitch(toggleId, product.isActive)}</td>
-                    <td class="px-6 py-4 whitespace-nowrap text-sm font-medium">
-                        <div class="flex items-center space-x-2">
-                            <button class="text-gray-500 hover:text-red-500 transition-colors">Atur</button>
-                            <svg class="w-4 h-4 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path></svg>
-                        </div>
-                    </td>
-                </tr>
-            `;
-            
-            // Jika produk memiliki varian, tambahkan tombol "Lihat varian produk" dan baris varian
-            if (product.variants && product.variants.length > 0) {
-                // Tombol Lihat Varian
-                rowHtml += `
-                    <tr class="bg-white hover:bg-red-50/50">
-                        <!-- colspan diubah dari 7 menjadi 6 -->
-                        <td colspan="6" class="px-6 py-2 text-sm text-red-500 cursor-pointer font-medium" onclick="toggleVariants(${product.id})">
-                            <span id="toggleText-${product.id}">Lihat ${product.variants.length} varian produk</span>
-                        </td>
-                    </tr>
-                `;
-
-                // Baris Varian (tersembunyi secara default)
-                product.variants.forEach(variant => {
-                    rowHtml += `
-                        <tr class="variant-row-${product.id} hidden bg-red-50/20 hover:bg-red-50/50 text-xs">
-                            <td class="p-4 pl-8"><input type="checkbox" class="rounded text-red-500 border-gray-300 focus:ring-red-500"></td>
-                            <td class="px-6 py-2 whitespace-nowrap">
-                                <div class="flex items-center pl-4">
-                                    <div class="flex-shrink-0 h-8 w-8">
-                                        <img class="h-8 w-8 rounded-md border border-gray-200" src="https://placehold.co/32x32/E5E7EB/A1A1AA?text=V" alt="${variant.name}">
-                                    </div>
-                                    <div class="ml-3">
-                                        <div class="text-gray-700">${variant.name}</div>
-                                        <div class="text-gray-500 text-xs">SKU: ${variant.sku}</div>
-                                    </div>
-                                </div>
-                            </td>
-                            <!-- Kolom Statistik Varian Dihapus -->
-                            <td class="px-6 py-2 whitespace-nowrap text-gray-700">${formatRupiah(variant.price)}</td>
-                            <td class="px-6 py-2 whitespace-nowrap text-gray-700">${variant.stock.toLocaleString('id-ID')}</td>
-                            <td class="px-6 py-2 whitespace-nowrap">${createToggleSwitch(`variant-${variant.sku}`, variant.isActive)}</td>
-                            <td class="px-6 py-2 whitespace-nowrap">
-                                <div class="flex items-center space-x-2">
-                                    <button class="text-gray-500 hover:text-red-500 transition-colors">Atur</button>
-                                </div>
-                            </td>
-                        </tr>
-                    `;
-                });
-            }
-
-            return rowHtml;
-        };
-
-        // Fungsi untuk me-render semua produk ke tabel
-        const renderProductList = () => {
-            const productListElement = document.getElementById('productList');
-            productListElement.innerHTML = '';
-            productData.forEach(product => {
-                productListElement.innerHTML += renderProductRow(product);
+        async function postJson(url, method = 'POST'){
+            const res = await fetch(url, {
+                method: method,
+                credentials: 'same-origin',
+                headers: {
+                    'Accept': 'application/json',
+                    'Content-Type': 'application/json',
+                    'X-CSRF-TOKEN': csrf,
+                    'X-Requested-With': 'XMLHttpRequest'
+                },
+                body: JSON.stringify({})
             });
-        };
 
-        // Fungsi untuk menampilkan/menyembunyikan varian
-        window.toggleVariants = (productId) => {
-            const rows = document.querySelectorAll(`.variant-row-${productId}`);
-            const toggleText = document.getElementById(`toggleText-${productId}`);
-            let isHidden = true;
+            // Better error handling: if non-2xx, try parse JSON message
+            if (!res.ok) {
+                let errText = `HTTP ${res.status}`;
+                try {
+                    const payload = await res.json();
+                    console.error('Server error payload:', payload);
+                    errText = payload.message || payload.error || JSON.stringify(payload);
+                } catch (e) {
+                    const txt = await res.text();
+                    console.error('Server error text:', txt);
+                    errText = txt || errText;
+                }
+                throw new Error(errText);
+            }
 
-            rows.forEach(row => {
-                if (row.classList.contains('hidden')) {
-                    row.classList.remove('hidden');
-                    isHidden = false;
+            return res.json();
+        }
+
+        // Toggle handlers
+        document.querySelectorAll('.action-btn-toggle').forEach(btn => {
+            btn.addEventListener('click', async (e) => {
+                const id = btn.dataset.id;
+                const url = `{{ url('/dashboard-seller/produk') }}/${id}/toggle`;
+                btn.disabled = true;
+                try {
+                    const data = await postJson(url, 'POST');
+                    console.log('toggle response', data);
+                    if (data && data.success) {
+                        // update button label and status badge in row
+                        const row = btn.closest('tr');
+                        const badge = row.querySelector('td:nth-child(5) span');
+                        if (data.is_active) {
+                            badge.textContent = 'Aktif';
+                            badge.className = 'px-2 py-1 bg-green-100 text-green-700 rounded-full text-xs';
+                            btn.textContent = 'Nonaktifkan';
+                            row.dataset.active = '1';
+                        } else {
+                            badge.textContent = 'Nonaktif';
+                            badge.className = 'px-2 py-1 bg-gray-100 text-gray-600 rounded-full text-xs';
+                            btn.textContent = 'Aktifkan';
+                            row.dataset.active = '0';
+                        }
+                        showToast(data.message || 'Status produk diperbarui');
+                    } else {
+                        console.warn('toggle returned no success:', data);
+                        showToast((data && data.message) ? data.message : 'Gagal mengubah status produk');
+                    }
+                } catch (err) {
+                    console.error('Toggle error:', err);
+                    showToast('Gagal mengubah status produk: ' + err.message);
+                } finally { btn.disabled = false; }
+            });
+        });
+
+        // Delete handlers
+        document.querySelectorAll('.action-btn-delete').forEach(btn => {
+            btn.addEventListener('click', async (e) => {
+                const id = btn.dataset.id;
+                if (!confirm('Hapus produk ini? Tindakan tidak dapat dibatalkan.')) return;
+                const url = `{{ url('/dashboard-seller/produk') }}/${id}`;
+                btn.disabled = true;
+                try {
+                    const res = await fetch(url, {
+                        method: 'DELETE',
+                        credentials: 'same-origin',
+                        headers: {
+                            'Accept': 'application/json',
+                            'Content-Type': 'application/json',
+                            'X-CSRF-TOKEN': csrf,
+                            'X-Requested-With': 'XMLHttpRequest'
+                        },
+                        body: JSON.stringify({})
+                    });
+
+                    if (!res.ok) {
+                        let bodyText = '';
+                        try { bodyText = await res.json(); console.error('Delete error payload', bodyText); } catch(e) { bodyText = await res.text(); console.error('Delete error text', bodyText); }
+                        throw new Error(bodyText?.message || bodyText || `HTTP ${res.status}`);
+                    }
+
+                    const data = await res.json();
+                    if (data && data.success) {
+                        // remove row
+                        const row = btn.closest('tr');
+                        row.parentNode.removeChild(row);
+                        showToast(data.message);
+                    } else {
+                        showToast('Gagal menghapus produk');
+                    }
+                } catch (err) {
+                    console.error(err);
+                    showToast('Terjadi kesalahan jaringan');
+                } finally { btn.disabled = false; }
+            });
+        });
+
+        // Simple client-side filtering for tabs, search, category, filter and sort
+        const allRows = Array.from(document.querySelectorAll('tbody tr')).filter(r => r.dataset.active !== undefined);
+        const tbody = document.querySelector('tbody');
+
+        function applyFilters(){
+            const activeTab = document.querySelector('#productTabs a.text-red-500');
+            const tabKey = activeTab ? activeTab.textContent.trim().toLowerCase() : 'semua produk';
+            let status = 'semua produk';
+            // check 'non' first to avoid matching 'aktif' substring inside 'nonaktif'
+            if (tabKey === 'nonaktif' || tabKey.includes('non')) status = 'nonaktif';
+            else if (tabKey === 'aktif' || tabKey.includes('aktif')) status = 'aktif';
+
+            const q = (document.getElementById('productSearch')?.value || '').trim().toLowerCase();
+            const categoryVal = document.getElementById('categorySelect')?.value || '';
+            const filterVal = document.getElementById('filterSelect')?.value || '';
+            const sortVal = document.getElementById('sortSelect')?.value || '';
+
+            // determine visible rows
+            let visibleRows = [];
+            allRows.forEach(row => {
+                const isActive = row.dataset.active === '1';
+                let statusMatch = true;
+                if (status === 'aktif') statusMatch = isActive === true;
+                else if (status === 'nonaktif') statusMatch = isActive === false;
+
+                // category match
+                const catMatch = !categoryVal || row.dataset.category === categoryVal;
+
+                // search match
+                const nameEl = row.querySelector('.text-gray-900');
+                const name = nameEl ? nameEl.textContent.toLowerCase() : '';
+                const queryMatch = q === '' || name.includes(q);
+
+                // filter match
+                let filterMatch = true;
+                if (filterVal === 'stok-habis') {
+                    const stock = parseInt(row.querySelector('td:nth-child(4)').textContent.replace(/[^0-9]/g,'')) || 0;
+                    filterMatch = stock <= 0;
+                } else if (filterVal === 'skor-rendah') {
+                    const rating = parseFloat(row.dataset.rating || 0);
+                    filterMatch = rating > 0 ? rating < 3 : false; // only show if rated and low
+                }
+
+                if (statusMatch && catMatch && queryMatch && filterMatch) {
+                    row.style.display = '';
+                    visibleRows.push(row);
                 } else {
-                    row.classList.add('hidden');
+                    row.style.display = 'none';
                 }
             });
 
-            if (isHidden) {
-                toggleText.textContent = `Lihat ${rows.length} varian produk`;
-            } else {
-                toggleText.textContent = `Sembunyikan varian produk`;
+            // sorting: reorder visible rows inside tbody
+            if (sortVal === 'terlaris') {
+                visibleRows.sort((a,b) => (parseInt(b.dataset.sold||0) - parseInt(a.dataset.sold||0)));
+            } else if (sortVal === 'terbaru') {
+                visibleRows.sort((a,b) => (parseInt(a.dataset.order||0) - parseInt(b.dataset.order||0))); // original order ascending -> created desc was used server-side
             }
-        };
 
-        // Panggil fungsi render saat halaman dimuat
-        document.addEventListener('DOMContentLoaded', renderProductList);
-    </script>
+            // append rows in order
+            visibleRows.forEach(r => tbody.appendChild(r));
+        }
+
+        // Tabs behavior
+        const tabs = document.querySelectorAll('#productTabs a');
+        tabs.forEach(tab => {
+            tab.addEventListener('click', (e) => {
+                e.preventDefault();
+                // reset classes
+                tabs.forEach(t => {
+                    t.classList.remove('text-red-500', 'border-b-2', 'border-red-500');
+                    t.classList.add('text-gray-500');
+                });
+                tab.classList.remove('text-gray-500');
+                tab.classList.add('text-red-500', 'border-b-2', 'border-red-500');
+
+                const key = tab.textContent.trim().toLowerCase();
+                // normalize explicitly to avoid substring collisions (e.g. 'nonaktif' contains 'aktif')
+                let norm = 'semua produk';
+                if (key === 'semua produk' || key.includes('semua')) norm = 'semua produk';
+                else if (key === 'nonaktif' || key.includes('non')) norm = 'nonaktif';
+                else if (key === 'aktif' || key === 'aktif' || key.includes('aktif')) norm = 'aktif';
+                else if (key === 'draf' || key.includes('draf')) norm = 'draf';
+                // apply all filters (tab click changes status)
+                applyFilters();
+            });
+        });
+
+        // Search behavior
+        const searchInput = document.getElementById('productSearch');
+        if (searchInput) {
+            searchInput.addEventListener('input', (e) => {
+                const q = e.target.value.trim().toLowerCase();
+                const activeTab = document.querySelector('#productTabs a.text-red-500');
+                const key = activeTab ? activeTab.textContent.trim().toLowerCase() : 'semua produk';
+                applyFilters();
+            });
+        }
+
+        // attach listeners to selects and search
+        document.getElementById('categorySelect')?.addEventListener('change', applyFilters);
+        document.getElementById('filterSelect')?.addEventListener('change', applyFilters);
+        document.getElementById('sortSelect')?.addEventListener('change', applyFilters);
+        document.getElementById('productSearch')?.addEventListener('input', applyFilters);
+
+        // initial apply
+        applyFilters();
+    })();
+</script>
+
 </body>
 </html>

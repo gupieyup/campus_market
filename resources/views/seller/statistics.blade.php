@@ -48,9 +48,17 @@
             </div>
 
             <!-- Konten Utama Dashboard (Grid 3 Kolom) -->
+            @if(!empty($noSeller) && $noSeller)
+                <div class="mb-6 p-6 bg-yellow-50 border border-yellow-200 rounded-lg">
+                    <h3 class="text-lg font-semibold text-yellow-800">Anda belum terdaftar sebagai penjual</h3>
+                    <p class="text-sm text-yellow-700 mt-2">Halaman statistik memerlukan data toko. Jika Anda sudah menambahkan data penjual di database, silakan login kembali. Jika belum, bagian statistik akan disembunyikan.</p>
+                </div>
+            @endif
+
             <div class="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-8">
                 
                 <!-- KOLOM 1: METRIK KUNCI PENJUALAN (4 Box Vertikal) -->
+                @unless(!empty($noSeller) && $noSeller)
                 <div class="space-y-6">
                     <!-- Pesanan Baru -->
                     <div class="bg-white p-6 rounded-2xl shadow-md border border-red-100">
@@ -60,7 +68,7 @@
                             Pesanan Baru
                         </h3>
                         <!-- Mengganti font-extrabold menjadi font-semibold -->
-                        <div class="text-4xl font-semibold text-gray-800 mt-2">116</div>
+                        <div class="text-4xl font-semibold text-gray-800 mt-2">{{ $newOrders ?? 0 }}</div>
                         <div class="flex items-center mt-1">
                             <span id="metric1_change" class="text-xs font-medium text-red-500 bg-red-100 px-2 py-0.5 rounded-full">-3.71%</span>
                             <span class="text-xs text-gray-500 ml-2">dari 7 Hari lalu</span>
@@ -75,7 +83,7 @@
                             Produk Dilihat
                         </h3>
                         <!-- Mengganti font-extrabold menjadi font-semibold -->
-                        <div class="text-4xl font-semibold text-gray-800 mt-2">2.411</div>
+                        <div class="text-4xl font-semibold text-gray-800 mt-2">0</div>
                         <div class="flex items-center mt-1">
                             <span id="metric2_change" class="text-xs font-medium text-red-500 bg-red-100 px-2 py-0.5 rounded-full">-33.17%</span>
                             <span class="text-xs text-gray-500 ml-2">dari 7 Hari lalu</span>
@@ -90,7 +98,7 @@
                             Produk Terjual
                         </h3>
                         <!-- Mengganti font-extrabold menjadi font-semibold -->
-                        <div class="text-4xl font-semibold text-gray-800 mt-2">344</div>
+                        <div class="text-4xl font-semibold text-gray-800 mt-2">{{ $productsSold ?? 0 }}</div>
                         <div class="flex items-center mt-1">
                             <span id="metric3_change" class="text-xs font-medium text-red-500 bg-red-100 px-2 py-0.5 rounded-full">-30.78%</span>
                             <span class="text-xs text-gray-500 ml-2">dari 7 Hari lalu</span>
@@ -105,15 +113,17 @@
                             Pendapatan Bersih
                         </h3>
                         <!-- Mengganti font-extrabold menjadi font-semibold -->
-                        <div class="text-4xl font-semibold text-red-500 mt-2">Rp11.496.081</div>
+                        <div class="text-4xl font-semibold text-red-500 mt-2">Rp{{ number_format($netRevenue ?? 0, 0, ',', '.') }}</div>
                         <div class="flex items-center mt-1">
                             <span id="metric4_change" class="text-xs font-medium text-red-500 bg-red-100 px-2 py-0.5 rounded-full">-37.79%</span>
                             <span class="text-xs text-gray-500 ml-2">dari 7 Hari lalu</span>
                         </div>
                     </div>
                 </div>
+                @endunless
                 
                 <!-- KOLOM 2: GRAFIK TREN PENDAPATAN BERSIH -->
+                @unless(!empty($noSeller) && $noSeller)
                 <div class="lg:col-span-2 bg-white p-6 rounded-2xl shadow-md border border-red-100">
                     <div class="flex justify-between items-start mb-4">
                         <!-- Mengganti font-bold menjadi font-semibold -->
@@ -130,12 +140,10 @@
                     <!-- Ringkasan Pendapatan di atas Grafik -->
                     <div class="mb-6 border-b pb-4 border-red-50">
                         <p class="text-sm text-gray-500 font-medium flex items-center">
-                            Pendapatan Bersih Hari Ini (Live, 17 Mar 2021)
-                            <span class="ml-2 text-xs font-medium text-red-500 bg-red-100 px-2 py-0.5 rounded-full">-37.79% dari 7 Hari lalu</span>
+                            Pendapatan Bersih Hari Ini (Live, {{ \Carbon\Carbon::now()->translatedFormat('d M Y') }})
                         </p>
-                        <!-- Mengganti font-extrabold menjadi font-semibold -->
-                        <div class="text-4xl font-semibold text-red-600 mt-1">Rp11.496.081</div>
-                        <p class="text-sm text-gray-400 mt-2">Pendapatan Bersih 7 Hari lalu: Rp18.478.196</p>
+                        <div class="text-4xl font-semibold text-red-600 mt-1">Rp{{ number_format($todayRevenue ?? 0, 0, ',', '.') }}</div>
+                        <p class="text-sm text-gray-400 mt-2">Pendapatan Bersih 7 Hari lalu: Rp{{ number_format($prevWeekTotal ?? 0, 0, ',', '.') }}</p>
                     </div>
 
                     <div class="relative h-96 w-full">
@@ -143,8 +151,10 @@
                     </div>
                     
                 </div>
+                @endunless
                 
                 <!-- KOLOM 3: PERINGKAT PRODUK TERJUAL (Bergeser ke Kanan pada Tampilan Lebar) -->
+                @unless(!empty($noSeller) && $noSeller)
                 <div class="lg:col-span-1 bg-white p-6 rounded-2xl shadow-md border border-red-100">
                     <!-- Mengganti font-bold menjadi font-semibold -->
                     <h3 class="text-xl font-semibold text-gray-800 flex items-center mb-4">
@@ -161,6 +171,7 @@
                         Lihat Semua Ranking
                     </button>
                 </div>
+                @endunless
 
             </div>
 
@@ -168,22 +179,13 @@
     </div>
 
     <script>
-        // Data Fiktif untuk Statistik
+        // Data diisi dari server (blade -> json)
         const statsData = {
-            // Data untuk Ranking Produk
-            productRankings: [
-                { name: 'Beras Merah Premium 1kg', image: 'https://placehold.co/40x40/50B848/FFFFFF?text=BM', sold: 20, color: 'bg-green-100 text-green-700' },
-                { name: 'Beras Hitam Organik 500g', image: 'https://placehold.co/40x40/333333/FFFFFF?text=BH', sold: 13, color: 'bg-gray-200 text-gray-800' },
-                { name: 'Beras Organik Mix 250g', image: 'https://placehold.co/40x40/10B981/FFFFFF?text=BO', sold: 9, color: 'bg-emerald-100 text-emerald-700' },
-                { name: 'Permen Cokelat Rasa Mint', image: 'https://placehold.co/40x40/6366F1/FFFFFF?text=PC', sold: 7, color: 'bg-indigo-100 text-indigo-700' },
-                { name: 'Mie Instan Pedas Level 5', image: 'https://placehold.co/40x40/FBBF24/FFFFFF?text=MI', sold: 5, color: 'bg-amber-100 text-amber-700' },
-            ],
-
-            // Data untuk Grafik Tren Pendapatan Bersih (simulasi 24 jam)
+            productRankings: @json($productRankings ?? []),
             revenueTrend: {
-                labels: Array.from({ length: 24 }, (_, i) => `${i < 10 ? '0' : ''}${i}:00`),
-                currentPeriod: [0, 500000, 100000, 200000, 400000, 600000, 900000, 1500000, 2500000, 3000000, 3500000, 4000000, 2800000, 1500000, 800000, 1200000, 1800000, 1900000, 1500000, 900000, 500000, 300000, 100000, 0],
-                previousPeriod: [0, 100000, 500000, 300000, 500000, 700000, 1200000, 2000000, 3500000, 4500000, 3800000, 2500000, 1800000, 1200000, 600000, 900000, 1500000, 1700000, 1200000, 700000, 400000, 200000, 50000, 0],
+                labels: @json($labels ?? []),
+                currentPeriod: @json($data ?? []),
+                previousPeriod: @json($prevData ?? [])
             }
         };
 

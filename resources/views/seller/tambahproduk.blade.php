@@ -43,25 +43,44 @@
 
         <!-- Form Kontainer (Pusat Form di tengah) -->
         <div class="max-w-4xl mx-auto bg-white rounded-2xl shadow-lg border border-red-100 p-6 md:p-10">
-            <form id="productForm" onsubmit="event.preventDefault(); saveProduct();">
+            <form id="productForm" method="POST" action="{{ route('seller.produk.store') }}" enctype="multipart/form-data">
+                @csrf
                 <!-- BAGIAN 1: Informasi Dasar Produk -->
                 <h2 class="text-xl font-semibold text-gray-800 mb-4">Informasi Produk</h2>
                 <div class="space-y-6 pb-6 border-b border-gray-200">
                     <!-- Kategori Produk -->
                     <div class="pb-4">
                         <label for="kategori" class="block text-sm font-medium text-gray-700 mb-2">Kategori Produk</label>
-                        <select id="kategori" required class="form-input text-gray-500 bg-gray-50 border-gray-300 focus:border-red-500">
+                        <select id="kategori" name="category_id" required class="form-input text-gray-500 bg-gray-50 border-gray-300 focus:border-red-500">
                             <option value="" disabled selected>Silahkan Pilih</option>
-                            <option value="makanan">Makanan</option>
-                            <option value="elektronik">Elektronik</option>
-                            <option value="pakaian">Pakaian</option>
-                            <option value="alat_tulis">Alat Tulis</option>
+                            @foreach($categories as $cat)
+                                <option value="{{ $cat->id }}">{{ $cat->name }}</option>
+                            @endforeach
                         </select>
                     </div>
                     <!-- Nama Produk -->
                     <div class="pb-4">
                         <label for="nama_produk" class="block text-sm font-medium text-gray-700 mb-2">Nama Produk</label>
-                        <input type="text" id="nama_produk" placeholder="Masukkan nama produk" required class="form-input bg-gray-50 border-gray-300 focus:border-red-500">
+                        <input type="text" id="nama_produk" name="name" placeholder="Masukkan nama produk" required class="form-input bg-gray-50 border-gray-300 focus:border-red-500">
+                    </div>
+                    <!-- Region / Provinsi (default dari region toko jika ada) -->
+                    <div class="pb-4">
+                        <label for="region_id" class="block text-sm font-medium text-gray-700 mb-2">Wilayah Produk (Provinsi)</label>
+                        @if(!empty($seller) && $seller->region_id)
+                            <select id="region_id" disabled class="form-input bg-gray-100 border-gray-200 text-gray-600">
+                                @foreach($regions as $r)
+                                    <option value="{{ $r->id }}" @if($r->id == $seller->region_id) selected @endif>{{ $r->name }}</option>
+                                @endforeach
+                            </select>
+                            <input type="hidden" name="region_id" value="{{ $seller->region_id }}">
+                        @else
+                            <select id="region_id" name="region_id" required class="form-input text-gray-700 bg-gray-50 border-gray-300 focus:border-red-500">
+                                <option value="" disabled selected>Pilih Provinsi</option>
+                                @foreach($regions as $r)
+                                    <option value="{{ $r->id }}">{{ $r->name }}</option>
+                                @endforeach
+                            </select>
+                        @endif
                     </div>
                 </div>
 
@@ -73,7 +92,7 @@
                         <!-- Preview foto akan muncul di sini -->
                     </div>
                     <div id="dropzone" class="dropzone" onclick="document.getElementById('fileInput').click()">
-                        <input type="file" id="fileInput" multiple accept="image/*" class="hidden">
+                        <input type="file" id="fileInput" name="image" accept="image/*" class="hidden">
                         <!-- Upload Icon -->
                         <svg class="w-10 h-10 mx-auto text-red-500 mb-2" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0L8 8m4-4v12"></path></svg>
                         <p class="text-sm font-medium text-gray-600">Seret & lepas foto di sini, atau klik untuk memilih file.</p>
@@ -87,7 +106,7 @@
                     <!-- Harga Rp (Ditambah atribut min="0") -->
                     <div class="md:col-span-1 pb-4">
                         <label for="harga_jual" class="block text-sm font-medium text-gray-700 mb-2">Harga Rp</label>
-                        <input type="number" id="harga_jual" placeholder="angka" required class="form-input bg-gray-50 border-gray-300 focus:border-red-500" min="0">
+                        <input type="number" id="harga_jual" name="price" placeholder="angka" required class="form-input bg-gray-50 border-gray-300 focus:border-red-500" min="0">
                     </div>
                 </div>
 
@@ -108,10 +127,15 @@
                             <option value="dengan_stok">Atur Jumlah Stok (Manual)</option>
                         </select>
                     </div>
+                    <!-- Field stok numeric (tersimpan ke DB) -->
+                    <div class="pb-4">
+                        <label for="stock" class="block text-sm font-medium text-gray-700 mb-2">Jumlah Stok (angka)</label>
+                        <input type="number" id="stock" name="stock" value="0" min="0" class="form-input bg-gray-50 border-gray-300 focus:border-red-500">
+                    </div>
                     <!-- Deskripsi Produk -->
                     <div class="pb-4">
                         <label for="deskripsi_produk" class="block text-sm font-medium text-gray-700 mb-2">Deskripsi Produk</label>
-                        <textarea id="deskripsi_produk" rows="4" placeholder="Jelaskan produk Anda..." class="form-input resize-y bg-gray-50 border-gray-300 focus:border-red-500"></textarea>
+                        <textarea id="deskripsi_produk" name="description" rows="4" placeholder="Jelaskan produk Anda..." class="form-input resize-y bg-gray-50 border-gray-300 focus:border-red-500"></textarea>
                     </div>
                 </div>
 
@@ -128,7 +152,7 @@
     </main>
 </div>
 
-    <script>
+            <script>
         // Array untuk menyimpan file foto yang diunggah
         let uploadedFiles = [];
         const MAX_FILES = 5;
@@ -168,20 +192,15 @@
         }
 
         function handleFiles(files) {
-            files = [...files].filter(file => file.type.startsWith('image/') && file.size <= 2 * 1024 * 1024); // Filter size and type
-            
-            if (uploadedFiles.length + files.length > MAX_FILES) {
-                // Tampilkan notifikasi jika melebihi batas
-                showNotification(`Maksimal ${MAX_FILES} foto diizinkan!`, 'bg-red-100 border-red-400 text-red-700');
-                files = files.slice(0, MAX_FILES - uploadedFiles.length); // Ambil sisanya
-            }
+            // Convert FileList to array
+            files = Array.from(files || []);
+            // Only accept first file for now (backend stores single image)
+            if (files.length > 1) files = [files[0]];
+            files = files.filter(file => file.type.startsWith('image/') && file.size <= 2 * 1024 * 1024);
 
-            files.forEach(file => {
-                if (uploadedFiles.length < MAX_FILES) {
-                    uploadedFiles.push(file);
-                    previewFile(file);
-                }
-            });
+            if (files.length === 0) return;
+            uploadedFiles = files;
+            previewFile(files[0]);
             updateDropzoneVisibility();
         }
 
@@ -272,40 +291,8 @@
         }
 
         // Fungsi Simulasi Simpan Produk
-        function saveProduct() {
-            const name = document.getElementById('nama_produk').value;
-            const priceInput = document.getElementById('harga_jual');
-            const price = priceInput.value;
-
-            // Validasi client-side tambahan untuk harga (jika browser tidak mendukung min="0")
-            if (price < 0) {
-                showNotification('Harga tidak boleh bernilai negatif.', 'bg-red-100 border-red-400 text-red-700');
-                priceInput.focus();
-                return;
-            }
-
-            if (uploadedFiles.length === 0) {
-                 showNotification('Mohon unggah minimal 1 foto produk.', 'bg-red-100 border-red-400 text-red-700');
-                 return;
-            }
-
-            // Logika simulasi penyimpanan
-            console.log(`Produk baru disimpan: ${name} (Rp${price}) dengan ${uploadedFiles.length} foto.`);
-
-            // Tampilkan notifikasi sukses (menggantikan notifikasi di bawah header)
-            showNotification(`Sukses! Produk "${name}" berhasil ditambahkan.`, 'bg-green-100 border-green-400 text-green-700');
-            
-            // Reset form setelah simpan
-            document.getElementById('productForm').reset();
-            // Reset file upload
-            uploadedFiles = [];
-            document.getElementById('photoPreview').innerHTML = '';
-            updateDropzoneVisibility();
-            
-            // Pastikan bagian tambahan kembali tersembunyi
-            document.getElementById('moreFields').classList.add('hidden');
-            document.getElementById('toggleText').textContent = 'SHOW MORE';
-        }
+        // When the form is submitted normally the file input 'image' will be sent to server.
+        // Keep the preview UX and client validation; actual saving is performed by the server.
     </script>
 </body>
 </html>

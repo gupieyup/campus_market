@@ -4,16 +4,12 @@ use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\Pengunjung\HomeController;
 use App\Http\Controllers\Pengunjung\ProductController;
 use App\Http\Controllers\AuthController;
+use App\Http\Controllers\Seller\DashboardController;
 
-// Halaman cetak laporan
-Route::get('/dashboard-seller/cetaklaporan', function () {
-    return view('seller.cetaklaporan');
-})->name('seller.cetaklaporan');
-
-// Halaman tambah produk
-Route::get('/dashboard-seller/tambahproduk', function () {
-    return view('seller.tambahproduk');
-})->name('seller.tambahproduk');
+// Halaman cetak laporan (dari DB)
+Route::get('/dashboard-seller/cetaklaporan', [\App\Http\Controllers\Seller\ReportController::class, 'index'])
+    ->name('seller.cetaklaporan')
+    ->middleware('auth');
 
 
 // Route ke halaman Home Pengunjung (via controller)
@@ -43,28 +39,44 @@ Route::get('/register-seller', function () {
     return view('pengunjung.register');
 });
 
-// Seller Dashboard
-Route::get('/dashboard-seller', function () {
-    return view('seller.dashboard');
-})->name('seller.dashboard');
+// Seller Dashboard (protected)
+Route::get('/dashboard-seller', [DashboardController::class, 'index'])
+    ->name('seller.dashboard')
+    ->middleware('auth');
 
-Route::get('/dashboard-seller/statistics', function () {
-    return view('seller.statistics');
-})->name('seller.statistics');
+Route::get('/dashboard-seller/statistics', [DashboardController::class, 'statistics'])
+    ->name('seller.statistics')
+    ->middleware('auth');
 
-Route::get('/dashboard-seller/produk', function () {
-    return view('seller.produk');
-})->name('seller.produk');
+Route::get('/dashboard-seller/produk', [\App\Http\Controllers\Seller\ProductController::class, 'index'])
+    ->name('seller.produk')
+    ->middleware('auth');
+// Halaman tambah produk (form)
+Route::get('/dashboard-seller/tambahproduk', [\App\Http\Controllers\Seller\ProductController::class, 'create'])
+    ->name('seller.tambahproduk')
+    ->middleware('auth');
+// Simpan produk baru
+Route::post('/dashboard-seller/produk', [\App\Http\Controllers\Seller\ProductController::class, 'store'])
+    ->name('seller.produk.store')
+    ->middleware('auth');
+// Hapus produk
+Route::delete('/dashboard-seller/produk/{id}', [\App\Http\Controllers\Seller\ProductController::class, 'destroy'])
+    ->name('seller.produk.destroy')
+    ->middleware('auth');
+// Toggle aktif/nonaktif produk (POST)
+Route::post('/dashboard-seller/produk/{id}/toggle', [\App\Http\Controllers\Seller\ProductController::class, 'toggleActive'])
+    ->name('seller.produk.toggle')
+    ->middleware('auth');
+// Edit produk (form)
+Route::get('/dashboard-seller/produk/{id}/edit', [\App\Http\Controllers\Seller\ProductController::class, 'edit'])
+    ->name('seller.produk.edit')
+    ->middleware('auth');
+// Update produk
+Route::put('/dashboard-seller/produk/{id}', [\App\Http\Controllers\Seller\ProductController::class, 'update'])
+    ->name('seller.produk.update')
+    ->middleware('auth');
 
-// Halaman tambah produk
-Route::get('/dashboard-seller/tambahproduk', function () {
-    return view('seller.tambahproduk');
-})->name('seller.tambahproduk');
-
-// Halaman cetak laporan
-Route::get('/dashboard-seller/cetaklaporan', function () {
-    return view('seller.cetaklaporan');
-})->name('seller.cetaklaporan');
+// (route defined earlier using ReportController)
 
 // Admin Dashboard
 Route::get('/dashboard-admin', function () {

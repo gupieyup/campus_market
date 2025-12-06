@@ -50,13 +50,25 @@ class HomeController extends Controller
                                 ?? 'Tidak diketahui',
                     'rating' => $avg,
                     'sold' => property_exists($p, 'sold') ? ($p->sold ?? '0') : '0',
-                    'img' => function_exists('asset') ? (
-                        // If it's a full URL, use it directly
-                        (filter_var($p->image, FILTER_VALIDATE_URL) ? $p->image : (
+                    'img' => function_exists('asset') ? (function() use ($p) {
+                            // If it's a full URL, use it directly
+                            if (filter_var($p->image, FILTER_VALIDATE_URL)) {
+                                return $p->image;
+                            }
+
+                            // If the image value is an absolute path (starts with '/'), use asset() directly
+                            if (is_string($p->image) && Str::startsWith($p->image, '/')) {
+                                return asset($p->image);
+                            }
+
                             // If image path starts with 'images/' assume it's in public/images
-                            (Str::startsWith($p->image, 'images/') ? asset($p->image) : asset('storage/' . ltrim($p->image, '/')))
-                        ))
-                    ) : 'https://images.unsplash.com/photo-1544947950-fa07a98d237f?w=500&q=80',
+                            if (is_string($p->image) && Str::startsWith($p->image, 'images/')) {
+                                return asset($p->image);
+                            }
+
+                            // Otherwise treat it as a storage path (stored without leading slash)
+                            return asset('storage/' . ltrim((string) $p->image, '/'));
+                        })() : 'https://images.unsplash.com/photo-1544947950-fa07a98d237f?w=500&q=80',
                 ];
             });
 
