@@ -3,6 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="csrf-token" content="{{ csrf_token() }}">
     <title>SiToko</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <!-- Chart.js for data visualization -->
@@ -29,8 +30,21 @@
                 <h2 class="text-2xl font-bold text-gray-800">Selamat Datang, Penjual! 👋</h2>
                 <p class="text-gray-500 text-sm mt-1">Ringkasan aktivitas toko dan performa hari ini.</p>
             </div>
-            <!-- Placeholder Profil Toko -->
-            <div class="h-10 w-10 bg-red-200 rounded-full flex items-center justify-center text-red-500 font-bold text-lg">TS</div>
+            <!-- Status Akun dan Tombol Toggle -->
+            <div class="flex items-center gap-4">
+                @if(!empty($seller))
+                    <div class="flex items-center gap-2">
+                        <span class="text-sm font-semibold {{ $seller->is_active ? 'text-green-600' : 'text-red-600' }}">
+                            Status: {{ $seller->is_active ? '✓ Aktif' : '✗ Nonaktif' }}
+                        </span>
+                        <button id="toggleAccountBtn" class="px-4 py-2 rounded-lg font-semibold text-white transition-colors {{ $seller->is_active ? 'bg-red-500 hover:bg-red-600' : 'bg-green-500 hover:bg-green-600' }}" data-status="{{ $seller->is_active ? 'true' : 'false' }}">
+                            {{ $seller->is_active ? 'Nonaktifkan Akun' : 'Aktifkan Akun' }}
+                        </button>
+                    </div>
+                @endif
+                <!-- Placeholder Profil Toko -->
+                <div class="h-10 w-10 bg-red-200 rounded-full flex items-center justify-center text-red-500 font-bold text-lg">TS</div>
+            </div>
         </div>
         <!-- Kartu Metrik Kunci Penjual -->
         @if(!empty($noSeller) && $noSeller)
@@ -47,7 +61,6 @@
                     <h3 class="text-sm font-semibold text-gray-600">Total Produk Aktif</h3>
                         <div class="flex items-end justify-between mt-4">
                             <span class="text-3xl font-bold text-gray-800">{{ $totalProducts ?? 0 }}</span>
-                            <span class="text-xs font-medium text-green-600 bg-green-100 px-2 py-1 rounded-lg">&nbsp;</span>
                         </div>
                         <p class="text-xs text-gray-400 mt-2">Stok keseluruhan: {{ number_format($totalStock ?? 0) }} unit</p>
                 </div>
@@ -57,7 +70,6 @@
                     <h3 class="text-sm font-semibold text-gray-600">Total Penjualan</h3>
                     <div class="flex items-end justify-between mt-4">
                         <span class="text-3xl font-bold text-gray-800">{{ $totalSales ?? 0 }}</span>
-                        <span class="text-xs font-medium text-green-600 bg-green-100 px-2 py-1 rounded-lg">&nbsp;</span>
                     </div>
                     <p class="text-xs text-gray-400 mt-2">Transaksi sukses (total)</p>
                 </div>
@@ -72,26 +84,6 @@
                     <p class="text-xs text-gray-400 mt-2">Rata-rata rating produk Anda</p>
                 </div>
 
-            </div>
-
-            <!-- Bagian PENTING: Upload Produk -->
-            <div class="mb-8 bg-red-100 p-6 rounded-2xl shadow-lg border border-red-200">
-                <div class="flex items-center justify-between">
-                    <div>
-                        <h3 class="text-xl font-bold text-red-800 mb-2">Pasang Produk Pertamamu! 🚀</h3>
-                        <p class="text-red-700 text-sm">Jual barang-barang di sekitar kampusmu sekarang. Isi semua elemen data berikut untuk produk yang optimal (mirip standar Tokopedia).</p>
-                        <ul class="text-xs text-red-600 mt-2 list-disc list-inside space-y-1">
-                            <li>Nama Produk (Maks 70 Karakter) & Kategori (Otomatis/Manual)</li>
-                            <li>Foto Produk (Min. 3 Foto Jelas) & Deskripsi Lengkap</li>
-                            <li>Harga Jual, Berat Produk, dan **Stok** (Penting untuk Dashboard ini)</li>
-                        </ul>
-                    </div>
-                        <a href="{{ route('seller.tambahproduk') }}" class="flex items-center px-6 py-3 bg-red-500 text-white font-bold rounded-xl shadow-md hover:bg-red-600 transition-colors">
-                            <!-- Upload Icon -->
-                            <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0L8 8m4-4v12"></path></svg>
-                            Upload Produk
-                        </a>
-                </div>
             </div>
 
             <!-- Bagian Grafik: Stok dan Rating -->
@@ -283,5 +275,68 @@
             });
         })();
     </script>
-</body>
+
+    <!-- Toast Notification -->
+    <div id="toast" class="fixed top-4 right-4 z-50 px-6 py-3 rounded-lg shadow-lg text-white font-medium hidden transition-opacity duration-300"></div>
+
+    <script>
+        // Toggle Account Status
+        document.getElementById('toggleAccountBtn')?.addEventListener('click', async function() {
+            const btn = this;
+            const wasActive = btn.dataset.status === 'true';
+            
+            try {
+                const response = await fetch('{{ route("seller.toggle-account") }}', {
+                    method: 'POST',
+                    headers: {
+                        'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]')?.content || '',
+                        'Content-Type': 'application/json',
+                        'Accept': 'application/json',
+                    },
+                    credentials: 'same-origin',
+                });
+
+                const data = await response.json();
+
+                if (data.success) {
+                    // Update button and status text
+                    const newStatus = data.is_active;
+                    btn.dataset.status = newStatus ? 'true' : 'false';
+                    btn.textContent = newStatus ? 'Nonaktifkan Akun' : 'Aktifkan Akun';
+                    btn.className = `px-4 py-2 rounded-lg font-semibold text-white transition-colors ${
+                        newStatus ? 'bg-red-500 hover:bg-red-600' : 'bg-green-500 hover:bg-green-600'
+                    }`;
+
+                    // Update status text
+                    const statusSpan = btn.parentElement.querySelector('span');
+                    if (statusSpan) {
+                        statusSpan.className = `text-sm font-semibold ${newStatus ? 'text-green-600' : 'text-red-600'}`;
+                        statusSpan.textContent = `Status: ${newStatus ? '✓ Aktif' : '✗ Nonaktif'}`;
+                    }
+
+                    showToast(data.message, 'bg-green-500');
+                } else {
+                    showToast(data.message || 'Gagal mengubah status akun', 'bg-red-500');
+                }
+            } catch (error) {
+                console.error('Error toggling account:', error);
+                showToast('Terjadi kesalahan saat mengubah status akun', 'bg-red-500');
+            }
+        });
+
+        function showToast(message, bgColor = 'bg-green-500') {
+            const toast = document.getElementById('toast');
+            if (!toast) return;
+            
+            toast.textContent = message;
+            toast.className = `${bgColor} fixed top-4 right-4 z-50 px-6 py-3 rounded-lg shadow-lg text-white font-medium transition-opacity duration-300`;
+            
+            setTimeout(() => {
+                toast.classList.add('opacity-0');
+                setTimeout(() => {
+                    toast.classList.remove('opacity-0');
+                }, 300);
+            }, 1500);
+        }
+    </script>
 </html>

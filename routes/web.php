@@ -76,6 +76,11 @@ Route::put('/dashboard-seller/produk/{id}', [\App\Http\Controllers\Seller\Produc
     ->name('seller.produk.update')
     ->middleware('auth');
 
+// Toggle seller account active/inactive
+Route::post('/dashboard-seller/toggle-account', [DashboardController::class, 'toggleAccount'])
+    ->name('seller.toggle-account')
+    ->middleware('auth');
+
 // (route defined earlier using ReportController)
 
 // Admin Dashboard

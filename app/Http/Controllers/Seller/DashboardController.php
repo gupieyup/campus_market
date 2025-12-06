@@ -128,6 +128,7 @@ class DashboardController extends Controller
 
         return view('seller.dashboard', [
             'noSeller' => $noSeller,
+            'seller' => $seller,
             'totalProducts' => $totalProducts,
             'totalStock' => $totalStock,
             'totalSales' => $totalSales,
@@ -260,5 +261,33 @@ class DashboardController extends Controller
             'todayRevenue' => $todayRevenue,
             'prevWeekTotal' => $prevWeekTotal,
         ]);
+    }
+
+    /**
+     * Toggle seller account active/inactive status
+     */
+    public function toggleAccount(Request $request)
+    {
+        $user = Auth::user();
+        $seller = $user ? $user->seller : null;
+
+        if (!$seller) {
+            return response()->json(['success' => false, 'message' => 'Anda belum terdaftar sebagai penjual.'], 403);
+        }
+
+        $seller->is_active = !$seller->is_active;
+        $seller->save();
+
+        $msg = $seller->is_active ? 'Akun penjual diaktifkan.' : 'Akun penjual dinonaktifkan.';
+        
+        if ($request->wantsJson() || $request->ajax()) {
+            return response()->json([
+                'success' => true, 
+                'message' => $msg, 
+                'is_active' => (bool) $seller->is_active
+            ]);
+        }
+
+        return redirect()->route('seller.dashboard')->with('success', $msg);
     }
 }
