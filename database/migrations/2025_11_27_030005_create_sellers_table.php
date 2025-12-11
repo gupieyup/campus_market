@@ -20,6 +20,7 @@ return new class extends Migration
             $table->string('phone');
             $table->string('address');
             $table->boolean('is_active')->default(true);
+            $table->enum('verification_status', ['pending', 'verified', 'rejected'])->default('pending');
             $table->unsignedBigInteger('region_id');
             $table->timestamps();
 
