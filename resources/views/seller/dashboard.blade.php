@@ -27,7 +27,7 @@
         <!-- Header dan Ringkasan Toko -->
         <div class="mb-8 bg-white rounded-2xl p-6 shadow-sm border border-red-100 flex justify-between items-center">
             <div>
-                <h2 class="text-2xl font-bold text-gray-800">Selamat Datang, Penjual! 👋</h2>
+                <h2 class="text-2xl font-bold text-gray-800">Selamat Datang, {{ auth()->user()->name }}! 👋</h2>
                 <p class="text-gray-500 text-sm mt-1">Ringkasan aktivitas toko dan performa hari ini.</p>
             </div>
             <!-- Status Akun dan Tombol Toggle -->
