@@ -46,8 +46,13 @@ class ProductController extends Controller
                 if (filter_var($img, FILTER_VALIDATE_URL)) {
                     $imageUrl = $img;
                 } elseif (Str::startsWith($img, 'images/')) {
+                    // e.g. "images/products/xyz.jpg" in public dir
                     $imageUrl = asset($img);
+                } elseif (Str::startsWith($img, '/storage/') || Str::startsWith($img, 'storage/')) {
+                    // already a storage-backed path from uploader
+                    $imageUrl = asset(ltrim($img, '/'));
                 } else {
+                    // fallback: assume file stored under storage/public
                     $imageUrl = asset('storage/' . ltrim($img, '/'));
                 }
             } else {
@@ -153,6 +158,7 @@ class ProductController extends Controller
                     'url'      => route('products.show', $p->id),
                     'name'     => $p->name,
                     'price'    => 'Rp ' . number_format($p->price ?? 0, 0, ',', '.'),
+                    'category' => optional($p->category)->name ?? 'Lainnya',
                     'location' => optional($p->seller->region)->name 
                                 ?? optional($p->seller->region)->region_name 
                                 ?? 'Tidak diketahui',
@@ -164,7 +170,11 @@ class ProductController extends Controller
                             : (
                                 Str::startsWith($p->image, 'images/')
                                     ? asset($p->image)
-                                    : asset('storage/' . ltrim($p->image, '/'))
+                                    : (
+                                        (Str::startsWith($p->image, '/storage/') || Str::startsWith($p->image, 'storage/'))
+                                            ? asset(ltrim($p->image, '/'))
+                                            : asset('storage/' . ltrim($p->image, '/'))
+                                    )
                             )
                     ) : 'https://images.unsplash.com/photo-1544947950-fa07a98d237f?w=500&q=80',
                 ];

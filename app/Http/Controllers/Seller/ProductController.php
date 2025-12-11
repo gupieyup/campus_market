@@ -123,16 +123,8 @@ class ProductController extends Controller
         $product->price = $validated['price'];
         $product->stock = $validated['stock'] ?? 0;
         $product->category_id = $validated['category_id'];
-        // Ensure product has a region_id (use seller's region if present, otherwise use submitted region_id or fallback)
-        $regionId = $seller->region_id ?? ($seller->region?->id ?? null);
-        if (!$regionId && isset($validated['region_id'])) {
-            $regionId = $validated['region_id'];
-        }
-        if (!$regionId) {
-            $firstRegion = Region::first();
-            $regionId = $firstRegion ? $firstRegion->id : 1; // fallback to 1 if table empty
-        }
-        $product->region_id = $regionId;
+        // Region belongs to the seller; products table has no region column.
+        // Keep validation but do not write `region_id` into `products`.
         $product->is_active = isset($validated['is_active']) ? (bool) $validated['is_active'] : true;
         if ($imagePath) {
             // store relative public path for direct use in <img src="/storage/...">
