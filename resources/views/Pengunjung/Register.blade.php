@@ -158,25 +158,30 @@
                 <div class="form-group">
                     <label class="form-label">Nama Toko*</label>
                     <input type="text" name="nama_toko" class="form-input" placeholder="Contoh: Toko Berkah Jaya" required>
+                    <p class="text-red-500 text-xs mt-1 hidden" data-error-for="nama_toko"></p>
                 </div>
                 <div class="form-group">
                     <label class="form-label">Deskripsi Singkat</label>
                     <textarea name="deskripsi_toko" class="form-input" placeholder="Jelaskan produk unggulan toko Anda..." style="min-height: 80px; resize: vertical;"></textarea>
+                    <p class="text-red-500 text-xs mt-1 hidden" data-error-for="deskripsi_toko"></p>
                 </div>
 
                 <div class="section-title"><i class="fas fa-user-tie"></i> Data Penanggung Jawab (PIC)</div>
                 <div class="form-group">
                     <label class="form-label">Nama Lengkap PIC*</label>
                     <input type="text" name="nama_pic" class="form-input" placeholder="Sesuai KTP" required>
+                    <p class="text-red-500 text-xs mt-1 hidden" data-error-for="nama_pic"></p>
                 </div>
                 <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
                     <div class="form-group">
                         <label class="form-label">No. Handphone*</label>
                         <input type="tel" name="no_hp_pic" class="form-input" placeholder="08xxxxxxxxxx" pattern="[0-9]{10,15}" required>
+                        <p class="text-red-500 text-xs mt-1 hidden" data-error-for="no_hp_pic"></p>
                     </div>
                     <div class="form-group">
                         <label class="form-label">Email Aktif*</label>
                         <input type="email" name="email_pic" class="form-input" placeholder="nama@email.com" required>
+                        <p class="text-red-500 text-xs mt-1 hidden" data-error-for="email_pic"></p>
                     </div>
                 </div>
 
@@ -184,22 +189,26 @@
                 <div class="form-group">
                     <label class="form-label">Nama Jalan / Gedung*</label>
                     <input type="text" name="jalan" class="form-input" placeholder="Jl. Merdeka No. 45" required>
+                    <p class="text-red-500 text-xs mt-1 hidden" data-error-for="jalan"></p>
                 </div>
 
                 <div class="grid grid-cols-2 gap-4">
                     <div class="form-group">
                         <label class="form-label">RT*</label>
                         <input type="number" name="rt" class="form-input" placeholder="001" min="0" step="1" inputmode="numeric" required>
+                        <p class="text-red-500 text-xs mt-1 hidden" data-error-for="rt"></p>
                     </div>
                     <div class="form-group">
                         <label class="form-label">RW*</label>
                         <input type="number" name="rw" class="form-input" placeholder="005" min="0" step="1" inputmode="numeric" required>
+                        <p class="text-red-500 text-xs mt-1 hidden" data-error-for="rw"></p>
                     </div>
                 </div>
 
                 <div class="form-group">
                     <label class="form-label">Kelurahan/Desa*</label>
                     <input type="text" name="kelurahan" class="form-input" required>
+                    <p class="text-red-500 text-xs mt-1 hidden" data-error-for="kelurahan"></p>
                 </div>
 
                 <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -214,6 +223,7 @@
                             </div>
                             <input type="hidden" name="provinsi" id="input-provinsi-nama">
                         </div>
+                        <p class="text-red-500 text-xs mt-1 hidden" data-error-for="provinsi"></p>
                     </div>
 
                     <div class="form-group">
@@ -226,6 +236,7 @@
                                 <i class="fas fa-chevron-down text-xs"></i>
                             </div>
                         </div>
+                        <p class="text-red-500 text-xs mt-1 hidden" data-error-for="kota"></p>
                     </div>
                 </div>
 
@@ -233,15 +244,18 @@
                 <div class="form-group">
                     <label class="form-label">No. KTP PIC*</label>
                     <input type="text" name="no_ktp" class="form-input" placeholder="16 digit NIK" pattern="[0-9]{16}" required>
+                    <p class="text-red-500 text-xs mt-1 hidden" data-error-for="no_ktp"></p>
                 </div>
                 <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
                     <div class="form-group">
                         <label class="form-label">Foto Diri PIC (Max 2MB)*</label>
                         <input type="file" name="foto_pic" class="form-input" accept=".jpg,.jpeg,.png" required>
+                        <p class="text-red-500 text-xs mt-1 hidden" data-error-for="foto_pic"></p>
                     </div>
                     <div class="form-group">
                         <label class="form-label">Scan KTP (Max 5MB)*</label>
                         <input type="file" name="file_ktp" class="form-input" accept=".jpg,.jpeg,.png,.pdf" required>
+                        <p class="text-red-500 text-xs mt-1 hidden" data-error-for="file_ktp"></p>
                     </div>
                 </div>
 
@@ -255,6 +269,7 @@
                             <i class="fas fa-eye" id="icon-pass"></i>
                         </span>
                     </div>
+                    <p class="text-red-500 text-xs mt-1 hidden" data-error-for="password"></p>
                 </div>
 
                 <div class="form-group">
@@ -265,6 +280,7 @@
                             <i class="fas fa-eye" id="icon-confirm"></i>
                         </span>
                     </div>
+                    <p class="text-red-500 text-xs mt-1 hidden" data-error-for="password_confirmation"></p>
                 </div>
                 
                 <div class="mt-4 flex items-start gap-2">
@@ -290,6 +306,23 @@
     <button id="scrollToTop" class="fixed bottom-8 right-8 bg-primary-600 text-white p-4 rounded-full shadow-lg translate-y-20 opacity-0 transition-all duration-300 hover:bg-red-500 z-50">
         <i class="fas fa-arrow-up"></i>
     </button>
+    
+    <!-- Success Modal -->
+    <div id="success-modal" class="fixed inset-0 bg-black/40 hidden items-center justify-center z-50">
+        <div class="bg-white rounded-2xl w-[90%] max-w-md p-6 shadow-xl">
+            <div class="text-center">
+                <div class="mx-auto w-12 h-12 rounded-full bg-green-100 flex items-center justify-center mb-3">
+                    <i class="fas fa-check text-green-600"></i>
+                </div>
+                <h3 class="text-lg font-bold text-gray-800">REGISTRASI BERHASIL DIKIRIM</h3>
+                <p class="text-sm text-gray-600 mt-2">Data anda sedang dalam proses verifikasi, silahkan cek email anda secara berkala</p>
+            </div>
+            <div class="mt-6 flex gap-2">
+                <a href="/login-seller" class="flex-1 bg-primary-600 text-white px-4 py-2 rounded-md text-sm font-semibold text-center hover:bg-pink-500">Login Akun</a>
+                <button class="flex-1 border border-gray-300 px-4 py-2 rounded-md text-sm text-gray-700 hover:bg-gray-50" onclick="closeSuccessModal()">Tutup</button>
+            </div>
+        </div>
+    </div>
     
     <script>
         // 1. Toggle Password
@@ -346,28 +379,96 @@
             } catch (error) { selectKota.innerHTML = '<option value="">Gagal memuat data</option>'; }
         });
 
-        // 3. SUBMIT HANDLER (Updated for SRS-MartPlace-02)
+        // 3. SUBMIT HANDLER + Inline Validation + Success Modal
+        const errorEl = (name) => document.querySelector(`[data-error-for="${name}"]`);
+        const showError = (name, msg) => { const el = errorEl(name); if (!el) return; el.textContent = msg; el.classList.remove('hidden'); };
+        const clearError = (name) => { const el = errorEl(name); if (!el) return; el.textContent = ''; el.classList.add('hidden'); };
+
+        // Helper: required text, numeric only, email, phone
+        function validateRequiredText(name, value) {
+            if (!value || !value.trim()) { showError(name, 'Wajib diisi'); return false; }
+            clearError(name); return true;
+        }
+        function validateNumeric(name, value) {
+            if (!/^\d+$/.test((value||'').trim())) { showError(name, 'hanya dapat berisi angka'); return false; }
+            clearError(name); return true;
+        }
+        function validateEmail(name, value) {
+            const ok = /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test((value||'').trim());
+            if (!ok) { showError(name, 'Format email tidak valid'); return false; }
+            clearError(name); return true;
+        }
+        function validatePhone(name, value) {
+            if (!/^\d{10,15}$/.test((value||'').trim())) { showError(name, 'hanya dapat berisi angka (10-15 digit)'); return false; }
+            clearError(name); return true;
+        }
+
+        function openSuccessModal() {
+            const m = document.getElementById('success-modal');
+            m.classList.remove('hidden');
+            m.classList.add('flex');
+        }
+        function closeSuccessModal() {
+            const m = document.getElementById('success-modal');
+            m.classList.add('hidden');
+            m.classList.remove('flex');
+        }
+
         document.getElementById('sellerRegisterForm').addEventListener('submit', function(e) {
             e.preventDefault();
+
+            // Clear all errors
+            ['nama_toko','deskripsi_toko','nama_pic','no_hp_pic','email_pic','jalan','rt','rw','kelurahan','provinsi','kota','no_ktp','foto_pic','file_ktp','password','password_confirmation'].forEach(clearError);
+
+            // Per-field base validations
+            const namaToko = document.querySelector('input[name="nama_toko"]').value;
+            if (!validateRequiredText('nama_toko', namaToko)) return;
+
+            const namaPic = document.querySelector('input[name="nama_pic"]').value;
+            if (!validateRequiredText('nama_pic', namaPic)) return;
+
+            const hpPic = document.querySelector('input[name="no_hp_pic"]').value;
+            if (!validatePhone('no_hp_pic', hpPic)) return;
+
+            const emailPic = document.querySelector('input[name="email_pic"]').value;
+            if (!validateEmail('email_pic', emailPic)) return;
+
+            const jalanVal = document.querySelector('input[name="jalan"]').value;
+            if (!validateRequiredText('jalan', jalanVal)) return;
+
+            const kelVal = document.querySelector('input[name="kelurahan"]').value;
+            if (!validateRequiredText('kelurahan', kelVal)) return;
 
             // Validasi Password
             const pass = document.getElementById('password').value;
             const confirm = document.getElementById('password_confirmation').value;
-            if (pass !== confirm) { alert('Password dan Konfirmasi Password tidak cocok!'); return; }
+            if (pass !== confirm) { showError('password_confirmation','Password dan Konfirmasi Password tidak cocok'); return; }
+            if (pass.length < 8) { showError('password','Minimal 8 karakter'); return; }
 
             // Validasi RT / RW: boleh 0 atau angka positif (>= 0)
             const rtInput = document.querySelector('input[name="rt"]');
             const rwInput = document.querySelector('input[name="rw"]');
             const rtVal = rtInput ? parseInt(rtInput.value, 10) : NaN;
             const rwVal = rwInput ? parseInt(rwInput.value, 10) : NaN;
-            if (isNaN(rtVal) || rtVal < 0) { alert('RT harus berupa angka (>= 0).'); rtInput && rtInput.focus(); return; }
-            if (isNaN(rwVal) || rwVal < 0) { alert('RW harus berupa angka (>= 0).'); rwInput && rwInput.focus(); return; }
+            if (isNaN(rtVal) || rtVal < 0) { showError('rt','hanya dapat berisi angka'); rtInput && rtInput.focus(); return; }
+            if (isNaN(rwVal) || rwVal < 0) { showError('rw','hanya dapat berisi angka'); rwInput && rwInput.focus(); return; }
 
             // Validasi File
             const fotoPic = document.querySelector('input[name="foto_pic"]').files[0];
             const fileKtp = document.querySelector('input[name="file_ktp"]').files[0];
-            if(fotoPic && fotoPic.size > 2 * 1024 * 1024) { alert('Ukuran Foto PIC terlalu besar (Max 2MB).'); return; }
-            if(fileKtp && fileKtp.size > 5 * 1024 * 1024) { alert('Ukuran File KTP terlalu besar (Max 5MB).'); return; }
+            if(fotoPic && fotoPic.size > 2 * 1024 * 1024) { showError('foto_pic','Maksimal 2MB'); return; }
+            if(fileKtp && fileKtp.size > 5 * 1024 * 1024) { showError('file_ktp','Maksimal 5MB'); return; }
+
+            // Validasi KTP: hanya angka & 16 digit
+            const nik = document.querySelector('input[name="no_ktp"]').value.trim();
+            if (!/^\d+$/.test(nik)) { showError('no_ktp','hanya dapat berisi angka'); return; }
+            if (nik.length !== 16) { showError('no_ktp','nomor KTP tidak sesuai'); return; }
+
+            // Validasi dropdown provinsi/kota
+            const provSelectedName = document.getElementById('input-provinsi-nama').value.trim();
+            const kotaSelected = document.getElementById('select-kota').value.trim();
+            if (!provSelectedName) { showError('provinsi','Harap pilih provinsi'); return; }
+            if (!kotaSelected) { showError('kota','Harap pilih kota/kabupaten'); return; }
 
             // Loading Effect
             const btnSubmit = document.getElementById('btn-submit');
@@ -380,23 +481,50 @@
 
             // Simulate Server Process Delay
             setTimeout(() => {
-                // PESAN ALERT SESUAI SRS-MartPlace-02
-                alert(
-                    "REGISTRASI BERHASIL DIKIRIM!\n\n" +
-                    "Data Anda sedang dalam proses VERIFIKASI oleh Admin untuk pengecekan kelengkapan administrasi.\n\n" +
-                    "Mohon tunggu notifikasi DITERIMA atau DITOLAK melalui EMAIL.\n" +
-                    "Jika diterima, email akan berisi link aktivasi akun Anda."
-                );
+                // Tampilkan modal sukses
+                openSuccessModal();
 
-                // Reset Button & Form
+                // Reset Button
                 btnSubmit.disabled = false;
                 btnLoader.style.display = 'none';
                 btnText.textContent = 'DAFTAR SEKARANG';
-                document.getElementById('sellerRegisterForm').reset();
-                window.scrollTo({ top: 0, behavior: 'smooth' });
-                
-            }, 2000); // Delay 2 detik
+            }, 1200); // Delay 1.2 detik
         });
+
+        // Real-time clear and validate on input/blur
+        const attachClear = (selector, name) => {
+            const el = document.querySelector(selector);
+            if (!el) return;
+            el.addEventListener('input', () => clearError(name));
+            el.addEventListener('blur', () => {
+                const val = el.value || '';
+                if (name === 'no_hp_pic') validatePhone(name, val);
+                else if (name === 'email_pic') validateEmail(name, val);
+                else if (name === 'rt' || name === 'rw') validateNumeric(name, val);
+                else if (name === 'no_ktp') {
+                    if (!validateNumeric(name, val)) return;
+                    if (val.trim().length !== 16) showError(name,'nomor KTP tidak sesuai'); else clearError(name);
+                } else {
+                    validateRequiredText(name, val);
+                }
+            });
+        };
+
+        attachClear('input[name="nama_toko"]','nama_toko');
+        attachClear('textarea[name="deskripsi_toko"]','deskripsi_toko');
+        attachClear('input[name="nama_pic"]','nama_pic');
+        attachClear('input[name="no_hp_pic"]','no_hp_pic');
+        attachClear('input[name="email_pic"]','email_pic');
+        attachClear('input[name="jalan"]','jalan');
+        attachClear('input[name="rt"]','rt');
+        attachClear('input[name="rw"]','rw');
+        attachClear('input[name="kelurahan"]','kelurahan');
+        attachClear('#password','password');
+        attachClear('#password_confirmation','password_confirmation');
+        attachClear('input[name="no_ktp"]','no_ktp');
+
+        selectProvinsi.addEventListener('change', () => clearError('provinsi'));
+        selectKota.addEventListener('change', () => clearError('kota'));
 
         // Scroll Animation
         const navbar = document.getElementById('navbar');
