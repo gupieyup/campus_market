@@ -81,35 +81,18 @@ class DashboardController extends Controller
                 return ['name' => $p->name, 'stock' => (int) $p->stock];
             })->toArray();
 
-        // Top selling product id for rating distribution
-        $topProduct = DB::table('order_items')
-            ->join('products', 'order_items.product_id', '=', 'products.id')
-            ->where('products.seller_id', $seller->id)
-            ->select('products.id', DB::raw('SUM(order_items.qty) as sold'))
-            ->groupBy('products.id')
-            ->orderByDesc('sold')
-            ->first();
-
+        // Rating distribution across ALL seller products (not only best seller)
         $ratingDistribution = [0,0,0,0,0];
-        if ($topProduct) {
-            // find product_detail ids for top product and aggregate ratings across them
-            $topDetailIds = \App\Models\ProductDetail::where('product_id', $topProduct->id)->pluck('id');
-            $counts = Rating::whereIn('product_detail_id', $topDetailIds)
-                ->select('rating', DB::raw('count(*) as count'))
-                ->groupBy('rating')
-                ->pluck('count', 'rating')
-                ->toArray();
-            // rating keys might be 1..5
-            for ($r = 5; $r >= 1; $r--) {
-                $ratingDistribution[5 - $r] = isset($counts[$r]) ? (int) $counts[$r] : 0;
-            }
+        $counts = Rating::whereIn('product_detail_id', $productDetailIds)
+            ->select('rating', DB::raw('count(*) as count'))
+            ->groupBy('rating')
+            ->pluck('count', 'rating')
+            ->toArray();
+        for ($r = 5; $r >= 1; $r--) {
+            $ratingDistribution[5 - $r] = isset($counts[$r]) ? (int) $counts[$r] : 0;
         }
 
-        $topProductName = null;
-        if ($topProduct) {
-            $prod = Product::find($topProduct->id);
-            $topProductName = $prod ? $prod->name : null;
-        }
+        $topProductName = null; // no longer used in view
 
         // Sebaran pemberi rating per provinsi (top 6)
         // rating_reviews stores region_id; join region to get region.name

@@ -54,25 +54,18 @@
             </div>
         @endif
 
-        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-8">
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-2 gap-6 mb-8">
                 
                 <!-- Total Produk Aktif -->
                 <div class="bg-white p-6 rounded-2xl shadow-sm border border-red-50 hover:shadow-md transition-shadow">
-                    <h3 class="text-sm font-semibold text-gray-600">Total Produk Aktif</h3>
+                    <h3 class="text-sm font-semibold text-gray-600">Total Produk</h3>
                         <div class="flex items-end justify-between mt-4">
                             <span class="text-3xl font-bold text-gray-800">{{ $totalProducts ?? 0 }}</span>
                         </div>
                         <p class="text-xs text-gray-400 mt-2">Stok keseluruhan: {{ number_format($totalStock ?? 0) }} unit</p>
                 </div>
 
-                <!-- Total Penjualan (Transaksi) -->
-                <div class="bg-white p-6 rounded-2xl shadow-sm border border-red-50 hover:shadow-md transition-shadow">
-                    <h3 class="text-sm font-semibold text-gray-600">Total Penjualan</h3>
-                    <div class="flex items-end justify-between mt-4">
-                        <span class="text-3xl font-bold text-gray-800">{{ $totalSales ?? 0 }}</span>
-                    </div>
-                    <p class="text-xs text-gray-400 mt-2">Transaksi sukses (total)</p>
-                </div>
+                
 
                 <!-- Rata-Rata Rating Toko -->
                 <div class="bg-white p-6 rounded-2xl shadow-sm border border-red-50 hover:shadow-md transition-shadow">
@@ -100,10 +93,10 @@
 
                 <!-- GRAFIK 2: Sebaran Nilai Rating Per Produk (Stacked Bar for Top Product) -->
                 <div class="bg-white p-6 rounded-2xl shadow-sm border border-red-50">
-                    <h3 class="text-lg font-bold text-gray-800 mb-4">Distribusi Rating Produk Terlaris</h3>
+                    <h3 class="text-lg font-bold text-gray-800 mb-4">Distribusi Rating Produk</h3>
                     <div class="flex items-center mb-6">
                         <span class="text-3xl font-bold text-red-500 mr-2">{{ $avgRating ?? 0 }}</span>
-                        <span class="text-sm text-gray-500">dari {{ number_format($ratingCount ?? 0) }} ulasan (Produk: {{ $topProductName ?? '—' }})</span>
+                        <span class="text-sm text-gray-500">dari {{ number_format($ratingCount ?? 0) }} ulasan</span>
                     </div>
                     <div class="relative h-64 w-full flex justify-center">
                         <canvas id="ratingDistributionChart"></canvas>
@@ -113,9 +106,8 @@
 
             <!-- GRAFIK 3: Sebaran Pemberi Rating Berdasarkan Lokasi (Provinsi) -->
             <div class="bg-white p-6 rounded-2xl shadow-sm border border-red-50">
-                <div class="flex items-center justify-between mb-6">
+                <div class="flex items-center justify-start mb-6">
                     <h3 class="text-lg font-bold text-gray-800">Sebaran Pemberi Rating per Provinsi</h3>
-                    <button class="text-sm text-red-500 font-semibold hover:text-red-600">Lihat Peta</button>
                 </div>
                 
                 <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
@@ -212,7 +204,7 @@
             }
         });
 
-        // 2. Chart Sebaran Nilai Rating Per Produk (Stacked Horizontal Bar for Top Product)
+        // 2. Chart Distribusi Rating (Bar Chart per bintang)
         (function(){
             const canvas = document.getElementById('ratingDistributionChart');
             if (!canvas) return;
@@ -221,55 +213,49 @@
             if (!totalRatings) {
                 // replace canvas container with a friendly placeholder
                 const parent = canvas.parentElement;
-                parent.innerHTML = '<div class="p-6 text-center text-gray-500">Belum ada ulasan untuk produk terlaris.</div>';
+                parent.innerHTML = '<div class="p-6 text-center text-gray-500">Belum ada ulasan.</div>';
                 return;
             }
 
-            const ctxRating = canvas.getContext('2d');
-            const ratingLabels = ['5 Bintang', '4 Bintang', '3 Bintang', '2 Bintang', '1 Bintang'];
-            const ratingColors = ['#4ADE80', '#A7F3D0', '#FCD34D', '#F97316', '#EF4444']; // Green to Red
+            const ctx = canvas.getContext('2d');
+            // ratingDistribution index: [5★, 4★, 3★, 2★, 1★]
+            const labels = ['5', '4', '3', '2', '1'];
+            const values = [
+                ratingDistribution[0] || 0,
+                ratingDistribution[1] || 0,
+                ratingDistribution[2] || 0,
+                ratingDistribution[3] || 0,
+                ratingDistribution[4] || 0,
+            ];
+            const colors = ['#22c55e', '#86efac', '#facc15', '#fb923c', '#ef4444'];
 
-            const datasets = ratingLabels.map((label, index) => ({
-                label: label,
-                data: [ratingDistribution[index] || 0],
-                backgroundColor: ratingColors[index],
-                barThickness: 30,
-            }));
-
-            new Chart(ctxRating, {
+            new Chart(ctx, {
                 type: 'bar',
                 data: {
-                    labels: ['Rating Distribusi'],
-                    datasets: datasets,
+                    labels: labels.map(l => l + '★'),
+                    datasets: [{
+                        label: 'Jumlah Ulasan',
+                        data: values,
+                        backgroundColor: colors,
+                        borderRadius: 6,
+                    }]
                 },
                 options: {
-                    indexAxis: 'y', // Horizontal Bar
                     responsive: true,
                     maintainAspectRatio: false,
                     plugins: {
-                        legend: { position: 'bottom', labels: { usePointStyle: true, boxWidth: 8 } },
+                        legend: { display: false },
                         tooltip: {
                             callbacks: {
                                 label: function(context) {
-                                    let label = context.dataset.label || '';
-                                    if (label) { label += ': '; }
-                                    label += new Intl.NumberFormat('id-ID').format(context.parsed.x) + ' Ulasan';
-                                    return label;
+                                    return new Intl.NumberFormat('id-ID').format(context.parsed.y ?? context.parsed.y) + ' Ulasan';
                                 }
                             }
                         }
                     },
                     scales: {
-                        x: {
-                            stacked: true, // Stacked bar
-                            beginAtZero: true,
-                            display: false // Hide X-axis numbers
-                        },
-                        y: {
-                            stacked: true, // Stacked bar
-                            grid: { display: false },
-                            display: false // Hide Y-axis labels
-                        }
+                        x: { grid: { display: false } },
+                        y: { beginAtZero: true, grid: { borderDash: [2,4], color:'#f3f4f6' }, ticks: { precision: 0 } }
                     }
                 }
             });
