@@ -115,7 +115,25 @@
                                 <td class="px-6 py-4 whitespace-nowrap">
                                     <div class="flex items-center">
                                         <div class="flex-shrink-0 h-10 w-10">
-                                            <img class="h-10 w-10 rounded-lg object-cover" src="{{ $product->image ?? '/images/products/default.png' }}" alt="{{ $product->name }}">
+                                            @php
+                                                $img = $product->image ?? null;
+                                                if ($img) {
+                                                    if (filter_var($img, FILTER_VALIDATE_URL)) {
+                                                        $imageUrl = $img;
+                                                    } elseif (is_string($img) && Str::startsWith($img, '/')) {
+                                                        $imageUrl = asset(ltrim($img, '/'));
+                                                    } elseif (is_string($img) && Str::startsWith($img, 'images/')) {
+                                                        $imageUrl = asset($img);
+                                                    } elseif (is_string($img) && (Str::startsWith($img, '/storage/') || Str::startsWith($img, 'storage/'))) {
+                                                        $imageUrl = asset(ltrim($img, '/'));
+                                                    } else {
+                                                        $imageUrl = asset('storage/' . ltrim((string)$img, '/'));
+                                                    }
+                                                } else {
+                                                    $imageUrl = asset('images/products/default.png');
+                                                }
+                                            @endphp
+                                            <img class="h-10 w-10 rounded-lg object-cover" src="{{ $imageUrl }}" alt="{{ $product->name }}">
                                         </div>
                                         <div class="ml-4">
                                             <div class="text-gray-900 truncate max-w-xs">{{ $product->name }}</div>

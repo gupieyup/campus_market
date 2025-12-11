@@ -39,7 +39,13 @@ class ProductController extends Controller
     public function show(Request $request, $id)
     {
         try {
-            $product = Product::active()->with(['seller.user', 'seller.region', 'category', 'productDetails'])->findOrFail($id);
+            $product = Product::active()
+                ->whereHas('seller', function ($s) {
+                    $s->where('is_active', true)
+                      ->where('verification_status', 'verified');
+                })
+                ->with(['seller.user', 'seller.region', 'category', 'productDetails'])
+                ->findOrFail($id);
 
             $img = $product->image;
             if ($img) {
@@ -70,6 +76,10 @@ class ProductController extends Controller
 
             $relatedProducts = Product::where('category_id', $product->category_id)
                 ->where('id', '!=', $product->id)
+                ->whereHas('seller', function ($s) {
+                    $s->where('is_active', true)
+                      ->where('verification_status', 'verified');
+                })
                 ->take(6)
                 ->get();
 
@@ -111,7 +121,12 @@ class ProductController extends Controller
         try {
             $perPage = 12;
 
-            $productsQuery = Product::active()->with(['seller', 'seller.region', 'ratings', 'category']);
+            $productsQuery = Product::active()
+                ->with(['seller', 'seller.region', 'ratings', 'category'])
+                ->whereHas('seller', function ($s) {
+                    $s->where('is_active', true)
+                      ->where('verification_status', 'verified');
+                });
 
             if (!empty($q)) {
                 $productsQuery = $productsQuery->where(function ($w) use ($q) {
@@ -233,6 +248,8 @@ class ProductController extends Controller
             $region = Region::where('name', $province)->first();
             if ($region) {
                 $cityList = Seller::where('region_id', $region->id)
+                    ->where('is_active', true)
+                    ->where('verification_status', 'verified')
                     ->whereNotNull('address')
                     ->select('address as city')
                     ->distinct()
@@ -268,6 +285,8 @@ class ProductController extends Controller
             return response()->json([]);
         }
         $cities = Seller::where('region_id', $region->id)
+            ->where('is_active', true)
+            ->where('verification_status', 'verified')
             ->whereNotNull('address')
             ->select('address as city')
             ->distinct()
