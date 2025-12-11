@@ -21,7 +21,7 @@
 
     <div class="flex h-screen overflow-hidden">
 
-        @include('Admin._sidebar', ['active' => 'verifikasi', 'verifCount' => 3])
+        @include('Admin._sidebar', ['active' => 'verifikasi', 'verifCount' => $verifCount ?? 0])
         
 
         <main class="flex-1 flex flex-col h-screen overflow-hidden relative">
@@ -30,34 +30,22 @@
                 <div class="flex items-center gap-2 text-sm text-gray-500">
                     <span>Moderasi</span>
                     <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path></svg>
-                    <span class="text-red-500 font-semibold">Review Pengajuan #REQ-889</span>
+                    <span class="text-red-500 font-semibold">Review Pengajuan #{{ $seller->id }}</span>
                 </div>
                 <div class="flex items-center gap-3">
-                   <span class="px-3 py-1 bg-yellow-100 text-yellow-700 rounded-full text-xs font-bold uppercase tracking-wide border border-yellow-200">Menunggu Review</span>
+                    @php
+                        $status = $seller->verification_status;
+                        $badgeClass = $status === 'verified' ? 'bg-green-100 text-green-700 border-green-200' : ($status === 'rejected' ? 'bg-red-100 text-red-700 border-red-200' : 'bg-yellow-100 text-yellow-700 border-yellow-200');
+                        $label = $status === 'verified' ? 'Terverifikasi' : ($status === 'rejected' ? 'Ditolak' : 'Menunggu Review');
+                    @endphp
+                    <span class="px-3 py-1 {{ $badgeClass }} rounded-full text-xs font-bold uppercase tracking-wide">{{ $label }}</span>
                 </div>
             </header>
 
             <div class="flex-1 overflow-y-auto p-4 lg:p-8 scroll-smooth" id="scrollContainer">
                 <div class="max-w-7xl mx-auto grid grid-cols-1 lg:grid-cols-12 gap-8 pb-32">
                     
-                    @php 
-                        $regData = $applicant ?? session('last_registration', [
-                            'nama_toko' => 'Berkah Jaya Book',
-                            'deskripsi_toko' => 'Menjual buku tulis, alat tulis kantor, dan perlengkapan sekolah lengkap.',
-                            'nama_pic' => 'Budi Santoso',
-                            'no_hp_pic' => '081234567890',
-                            'email_pic' => 'budi.s@student.univ.ac.id',
-                            'jalan' => 'Jl. Merdeka No. 45, Cilandak',
-                            'rt' => '005',
-                            'rw' => '002',
-                            'kelurahan' => 'Sukamaju',
-                            'kota' => 'Jakarta Selatan',
-                            'provinsi' => 'DKI Jakarta',
-                            'no_ktp' => '3174092205980001',
-                            'foto_pic_name' => 'budi_selfie.jpg',
-                            'file_ktp_name' => 'ktp_scan_hd.jpg'
-                        ]); 
-                    @endphp
+                    @php use Illuminate\Support\Str; @endphp
 
                     <div class="lg:col-span-5 space-y-6">
                         
@@ -68,24 +56,24 @@
                             <div class="space-y-4">
                                 <div class="border-b border-gray-50 pb-2">
                                     <label class="text-[11px] font-bold text-gray-400 uppercase block mb-1">1. Nama Toko</label>
-                                    <p class="text-base font-bold text-gray-800">{{ $regData['nama_toko'] }}</p>
+                                    <p class="text-base font-bold text-gray-800">{{ $seller->shop_name }}</p>
                                 </div>
                                 <div class="border-b border-gray-50 pb-2">
                                     <label class="text-[11px] font-bold text-gray-400 uppercase block mb-1">2. Deskripsi</label>
-                                    <p class="text-sm text-gray-600 leading-relaxed">{{ $regData['deskripsi_toko'] }}</p>
+                                    <p class="text-sm text-gray-600 leading-relaxed">{{ $seller->shop_description ?? '-' }}</p>
                                 </div>
                                 <div>
                                     <label class="text-[11px] font-bold text-gray-400 uppercase block mb-1">3. Nama PIC</label>
-                                    <p class="text-sm font-bold text-gray-800">{{ $regData['nama_pic'] }}</p>
+                                    <p class="text-sm font-bold text-gray-800">{{ $seller->user->name }}</p>
                                 </div>
                                 <div class="grid grid-cols-2 gap-3">
                                     <div>
                                         <label class="text-[11px] font-bold text-gray-400 uppercase block mb-1">4. No. HP</label>
-                                        <p class="text-sm font-medium text-gray-700 font-mono">{{ $regData['no_hp_pic'] }}</p>
+                                        <p class="text-sm font-medium text-gray-700 font-mono">{{ $seller->phone }}</p>
                                     </div>
                                     <div>
                                         <label class="text-[11px] font-bold text-gray-400 uppercase block mb-1">5. Email</label>
-                                        <p class="text-sm font-medium text-blue-600 truncate">{{ $regData['email_pic'] }}</p>
+                                        <p class="text-sm font-medium text-blue-600 truncate">{{ $seller->user->email }}</p>
                                     </div>
                                 </div>
                             </div>
@@ -97,31 +85,13 @@
                             </h3>
                             <div class="space-y-4">
                                 <div>
-                                    <label class="text-[11px] font-bold text-gray-400 uppercase block mb-1">6. Jalan</label>
-                                    <p class="text-sm font-medium text-gray-800">{{ $regData['jalan'] }}</p>
-                                </div>
-                                <div class="grid grid-cols-2 gap-3">
-                                    <div class="bg-gray-50 p-2 rounded-lg border border-gray-100">
-                                        <label class="text-[10px] font-bold text-gray-400 uppercase block">7. RT</label>
-                                        <p class="text-sm font-bold text-gray-800">{{ $regData['rt'] }}</p>
-                                    </div>
-                                    <div class="bg-gray-50 p-2 rounded-lg border border-gray-100">
-                                        <label class="text-[10px] font-bold text-gray-400 uppercase block">8. RW</label>
-                                        <p class="text-sm font-bold text-gray-800">{{ $regData['rw'] }}</p>
-                                    </div>
+                                    <label class="text-[11px] font-bold text-gray-400 uppercase block mb-1">Alamat Lengkap</label>
+                                    <p class="text-sm font-medium text-gray-800">{{ $seller->address }}</p>
                                 </div>
                                 <div class="space-y-2">
                                     <div>
-                                        <label class="text-[11px] font-bold text-gray-400 uppercase block mb-0.5">9. Kelurahan</label>
-                                        <p class="text-sm text-gray-700">{{ $regData['kelurahan'] }}</p>
-                                    </div>
-                                    <div>
-                                        <label class="text-[11px] font-bold text-gray-400 uppercase block mb-0.5">10. Kota</label>
-                                        <p class="text-sm text-gray-700">{{ $regData['kota'] }}</p>
-                                    </div>
-                                    <div>
-                                        <label class="text-[11px] font-bold text-gray-400 uppercase block mb-0.5">11. Provinsi</label>
-                                        <p class="text-sm text-gray-700">{{ $regData['provinsi'] }}</p>
+                                        <label class="text-[11px] font-bold text-gray-400 uppercase block mb-0.5">Kota/Kabupaten</label>
+                                        <p class="text-sm text-gray-700">{{ optional($seller->region)->name ?? '-' }}</p>
                                     </div>
                                 </div>
                             </div>
@@ -135,7 +105,7 @@
                                 <div>
                                     <label class="text-[11px] font-bold text-gray-400 uppercase block mb-1">12. Nomor KTP (NIK)</label>
                                     <div class="bg-yellow-50 border border-yellow-200 rounded-lg p-3 text-center">
-                                        <p class="text-lg font-mono font-bold text-gray-800 tracking-wider">{{ $regData['no_ktp'] }}</p>
+                                        <p class="text-lg font-mono font-bold text-gray-800 tracking-wider">{{ $seller->nik ?? '-' }}</p>
                                     </div>
                                 </div>
                                 <div class="grid grid-cols-2 gap-3">
@@ -177,10 +147,17 @@
 
                                 <div class="flex-1 bg-gray-900 relative overflow-hidden flex items-center justify-center p-8">
                                     <template x-if="activeDoc === 'foto'">
-                                        <img src="https://via.placeholder.com/800x600/374151/FFFFFF?text=FOTO+PIC+(Point+13)" class="max-w-full max-h-full object-contain shadow-2xl rounded" alt="Foto PIC">
+                                        <img src="{{ $seller->shop_image ? asset('storage/' . $seller->shop_image) : 'https://via.placeholder.com/800x600/374151/FFFFFF?text=TIDAK+ADA+FOTO' }}" class="max-w-full max-h-full object-contain shadow-2xl rounded" alt="Foto PIC">
                                     </template>
                                     <template x-if="activeDoc === 'ktp'">
-                                        <img src="https://via.placeholder.com/800x600/374151/FFFFFF?text=SCAN+KTP+(Point+14)" class="max-w-full max-h-full object-contain shadow-2xl rounded" alt="Scan KTP">
+                                        @php $isPdf = $seller->ktp_image && Str::endsWith(strtolower($seller->ktp_image), '.pdf'); @endphp
+                                        @if($isPdf)
+                                            <div class="text-center text-white">
+                                                <a class="underline text-blue-300" href="{{ asset('storage/' . $seller->ktp_image) }}" target="_blank">Buka File KTP (PDF)</a>
+                                            </div>
+                                        @else
+                                            <img src="{{ $seller->ktp_image ? asset('storage/' . $seller->ktp_image) : 'https://via.placeholder.com/800x600/374151/FFFFFF?text=TIDAK+ADA+FILE+KTP' }}" class="max-w-full max-h-full object-contain shadow-2xl rounded" alt="Scan KTP">
+                                        @endif
                                     </template>
                                 </div>
                             </div>
@@ -200,38 +177,10 @@
 
             <div class="absolute bottom-0 left-0 right-0 bg-white border-t border-gray-200 p-4 lg:px-8 z-30 shadow-[0_-4px_10px_rgba(0,0,0,0.05)]">
                 <div class="max-w-7xl mx-auto flex items-center justify-between">
-                    
-                    <div x-show="actionStatus === 'idle'" class="hidden md:block text-sm text-gray-500">
-                        Review data untuk: <span class="font-bold text-gray-800">Budi Santoso</span>
+                    <div class="text-sm text-gray-600">
+                        Detail verifikasi ditampilkan tanpa aksi. Status saat ini: 
+                        <span class="font-bold text-gray-800">{{ $label }}</span>
                     </div>
-
-                    <div x-show="actionStatus === 'reject'" class="flex-1 mr-4 max-w-2xl" x-transition:enter="transition ease-out duration-200" x-transition:enter-start="opacity-0 translate-y-2" x-transition:enter-end="opacity-100 translate-y-0">
-                         <div class="flex items-center gap-2">
-                             <input type="text" x-model="rejectReason" class="flex-1 text-sm rounded-xl border-red-300 focus:ring-red-500 focus:border-red-500 px-4 py-2.5 bg-red-50" placeholder="Tulis alasan penolakan di sini...">
-                         </div>
-                    </div>
-
-                    <div class="flex items-center gap-3 w-full md:w-auto justify-end">
-                        
-                        <button x-show="actionStatus === 'reject'" @click="actionStatus = 'idle'" class="px-5 py-2.5 rounded-xl border border-gray-300 text-gray-600 font-semibold hover:bg-gray-50 transition text-sm">
-                            Batal
-                        </button>
-
-                        <button x-show="actionStatus === 'idle'" @click="actionStatus = 'reject'" class="px-5 py-2.5 rounded-xl border border-red-200 text-red-600 font-bold hover:bg-red-50 transition text-sm flex items-center gap-2">
-                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg>
-                            Tolak
-                        </button>
-
-                        <button x-show="actionStatus === 'reject'" @click="submitRejection()" :disabled="!rejectReason" :class="!rejectReason ? 'opacity-50 cursor-not-allowed' : 'hover:bg-red-700 shadow-red-200'" class="px-5 py-2.5 rounded-xl bg-red-600 text-white font-bold text-sm shadow-lg transition">
-                            Kirim Penolakan
-                        </button>
-
-                        <button x-show="actionStatus === 'idle'" @click="submitApproval()" class="px-6 py-2.5 rounded-xl bg-green-500 text-white font-bold hover:bg-green-600 text-sm shadow-lg shadow-green-200 transition flex items-center gap-2">
-                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path></svg>
-                            Setujui
-                        </button>
-                    </div>
-
                 </div>
             </div>
 
@@ -241,17 +190,7 @@
     <script>
         document.addEventListener('alpine:init', () => {
             Alpine.data('verificationDetail', () => ({
-                activeDoc: 'foto',
-                actionStatus: 'idle',
-                rejectReason: '',
-                submitApproval() {
-                    if(confirm("Yakin data valid?")) alert("Disetujui!");
-                },
-                submitRejection() {
-                    if(!this.rejectReason) return;
-                    alert("Ditolak: " + this.rejectReason);
-                    this.actionStatus = 'idle'; this.rejectReason = '';
-                }
+                activeDoc: 'foto'
             }))
         })
     </script>

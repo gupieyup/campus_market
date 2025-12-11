@@ -6,6 +6,9 @@ use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use App\Models\Seller;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Mail;
+use App\Mail\SellerVerificationApproved;
+use App\Mail\SellerVerificationRejected;
 
 class VerifikasiController extends Controller
 {
@@ -93,6 +96,14 @@ class VerifikasiController extends Controller
 
             DB::commit();
 
+            // Kirim email approved
+            try {
+                $seller->loadMissing(['user']);
+                Mail::to(optional($seller->user)->email)->send(new SellerVerificationApproved($seller));
+            } catch (\Throwable $mailErr) {
+                \Log::warning('Gagal kirim email approved', ['error' => $mailErr->getMessage(), 'seller_id' => $seller->id]);
+            }
+
             return response()->json([
                 'success' => true,
                 'message' => 'Pengajuan berhasil disetujui!'
@@ -134,6 +145,14 @@ class VerifikasiController extends Controller
             $seller->save();
 
             DB::commit();
+
+            // Kirim email rejected
+            try {
+                $seller->loadMissing(['user']);
+                Mail::to(optional($seller->user)->email)->send(new SellerVerificationRejected($seller, $request->reason));
+            } catch (\Throwable $mailErr) {
+                \Log::warning('Gagal kirim email rejected', ['error' => $mailErr->getMessage(), 'seller_id' => $seller->id]);
+            }
 
             return response()->json([
                 'success' => true,

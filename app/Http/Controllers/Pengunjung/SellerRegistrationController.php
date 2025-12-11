@@ -5,6 +5,8 @@ namespace App\Http\Controllers\Pengunjung;
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Mail;
+use App\Mail\SellerRegistrationReceived;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Validation\Rule;
 use App\Models\User;
@@ -77,6 +79,13 @@ class SellerRegistrationController extends Controller
             ]);
 
             DB::commit();
+
+            // Kirim email pemberitahuan registrasi diterima
+            try {
+                Mail::to($user->email)->send(new SellerRegistrationReceived($seller));
+            } catch (\Throwable $mailErr) {
+                Log::warning('Gagal kirim email registrasi seller', ['error' => $mailErr->getMessage()]);
+            }
 
             // Untuk permintaan AJAX, kembalikan JSON
             if ($request->wantsJson() || $request->ajax()) {

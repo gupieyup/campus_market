@@ -102,7 +102,7 @@
                                 <td class="p-5 text-sm text-gray-600">{{ $seller->user->email }}</td>
                                 <td class="p-5 text-right">
                                     @if($seller->verification_status === 'pending')
-                                        <button @click="openModal({{ $seller->id }}, '{{ addslashes($seller->user->name) }}', '{{ addslashes($seller->shop_name) }}', '{{ $seller->user->email }}', '{{ addslashes($seller->phone) }}', '{{ addslashes($seller->address) }}', '{{ $seller->shop_image ? asset('storage/' . $seller->shop_image) : '' }}')" 
+                                        <button @click="openModal({{ $seller->id }}, '{{ addslashes($seller->user->name) }}', '{{ addslashes($seller->shop_name) }}', '{{ $seller->user->email }}', '{{ addslashes($seller->phone) }}', '{{ addslashes($seller->address) }}', '{{ $seller->shop_image ? asset('storage/' . $seller->shop_image) : '' }}', '{{ optional($seller->region)->name ?? '' }}', '{{ addslashes($seller->nik ?? '') }}', '{{ $seller->ktp_image ? asset('storage/' . $seller->ktp_image) : '' }}')" 
                                                 class="bg-red-500 hover:bg-red-600 text-white px-4 py-2 rounded-lg text-sm font-medium shadow-sm transition-colors inline-block">
                                             Review
                                         </button>
@@ -203,6 +203,14 @@
                             <label class="text-xs font-semibold text-gray-400 uppercase">Alamat Lengkap</label>
                             <p class="text-sm text-gray-600" x-text="activeUser.address">-</p>
                         </div>
+                        <div>
+                            <label class="text-xs font-semibold text-gray-400 uppercase">Kota/Kabupaten</label>
+                            <p class="text-sm font-medium text-gray-800" x-text="activeUser.region">-</p>
+                        </div>
+                        <div>
+                            <label class="text-xs font-semibold text-gray-400 uppercase">NIK</label>
+                            <p class="text-sm font-mono font-bold text-gray-800" x-text="activeUser.nik || '-'">-</p>
+                        </div>
                     </div>
                 </div>
 
@@ -225,6 +233,32 @@
                                 <template x-if="!activeUser.image">
                                     <div class="h-48 bg-gray-100 rounded-lg flex items-center justify-center text-gray-400 text-sm border-2 border-dashed border-gray-300">
                                         [Tidak Ada Foto]
+                                    </div>
+                                </template>
+                            </div>
+
+                            <!-- Card KTP -->
+                            <div class="bg-white p-4 rounded-xl border border-gray-200 shadow-sm">
+                                <div class="flex justify-between items-start mb-2">
+                                    <span class="text-xs font-bold text-gray-500 uppercase">File KTP</span>
+                                    <span :class="activeUser.ktp ? 'text-green-500' : 'text-gray-300'">
+                                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path></svg></span>
+                                </div>
+                                <template x-if="activeUser.ktp">
+                                    <div>
+                                        <template x-if="activeUser.ktp.endsWith('.pdf')">
+                                            <div class="text-sm">
+                                                <a :href="activeUser.ktp" target="_blank" class="text-blue-600 underline">Buka File KTP (PDF)</a>
+                                            </div>
+                                        </template>
+                                        <template x-if="!activeUser.ktp.endsWith('.pdf')">
+                                            <img :src="activeUser.ktp" class="w-full h-48 object-contain rounded-lg border-2 border-gray-200" alt="Preview KTP">
+                                        </template>
+                                    </div>
+                                </template>
+                                <template x-if="!activeUser.ktp">
+                                    <div class="h-32 bg-gray-100 rounded-lg flex items-center justify-center text-gray-400 text-sm border-2 border-dashed border-gray-300">
+                                        [Tidak Ada File KTP]
                                     </div>
                                 </template>
                             </div>
@@ -297,11 +331,14 @@
                     email: '',
                     phone: '',
                     address: '',
+                    region: '',
+                    nik: '',
                     image: '',
+                    ktp: '',
                     initials: ''
                 },
 
-                openModal(id, name, store, email, phone, address, image) {
+                openModal(id, name, store, email, phone, address, image, region, nik, ktp) {
                     this.activeUser = {
                         id: id,
                         name: name,
@@ -309,7 +346,10 @@
                         email: email,
                         phone: phone,
                         address: address,
+                        region: region,
+                        nik: nik,
                         image: image,
+                        ktp: ktp,
                         initials: name.split(' ').map(n => n[0]).join('').substring(0,2).toUpperCase()
                     };
                     this.isRejecting = false;
