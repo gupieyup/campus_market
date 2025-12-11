@@ -84,22 +84,37 @@
 
         {{-- HERO SECTION --}}
         <section class="tokped-container mt-6">
-            <div class="hero-pattern rounded-xl p-8 md:p-12 text-center relative overflow-hidden shadow-sm animate-on-scroll">
+            <div class="hero-pattern rounded-xl p-0 md:p-0 text-center relative overflow-hidden shadow-sm animate-on-scroll">
                 <div class="absolute top-0 left-0 w-64 h-64 bg-white opacity-10 rounded-full blur-3xl -translate-x-1/2 -translate-y-1/2"></div>
                 <div class="absolute bottom-0 right-0 w-64 h-64 bg-yellow-300 opacity-20 rounded-full blur-3xl translate-x-1/2 translate-y-1/2"></div>
+                <!-- Carousel wrapper -->
+                <div class="relative z-10 max-w-4xl mx-auto">
+                    <div id="hero-carousel" class="overflow-hidden relative" style="min-height: 280px;">
+                        <!-- Slides -->
+                        <div class="carousel-slide p-8 md:p-12 min-h-[280px] absolute inset-0 transition-opacity duration-700 ease-out opacity-100 pointer-events-auto" data-index="0">
+                            <h1 class="text-3xl md:text-5xl font-extrabold text-white mb-4 leading-tight drop-shadow-md">Belanja Hemat<br>untuk Semua</h1>
+                            <p class="text-white/90 text-lg mb-8 font-medium">Marketplace untuk semua. Jual barang bekasmu, temukan kebutuhanmu.</p>
+                        </div>
+                        <div class="carousel-slide p-8 md:p-12 min-h-[280px] absolute inset-0 transition-opacity duration-700 ease-out opacity-0 pointer-events-none" data-index="1">
+                               <h1 class="text-3xl md:text-5xl font-extrabold text-white mb-4 leading-tight drop-shadow-md">Jual & Belanja<br>Dengan Nyaman</h1>
+                               <p class="text-white/90 text-lg mb-8 font-medium">Unggah produkmu dengan mudah, temukan pembeli dengan cepat.</p>
+                        </div>
+                        <div class="carousel-slide p-8 md:p-12 min-h-[280px] absolute inset-0 transition-opacity duration-700 ease-out opacity-0 pointer-events-none" data-index="2">
+                            <h1 class="text-3xl md:text-5xl font-extrabold text-white mb-4 leading-tight drop-shadow-md">Temukan Deals<br>Terbaik Setiap Hari</h1>
+                            <p class="text-white/90 text-lg mb-8 font-medium">Diskon, bundling, dan penawaran lokal dari penjual tepercaya.</p>
+                        </div>
+                    </div>
 
-                <div class="relative z-10 max-w-2xl mx-auto">
-                    <h1 class="text-3xl md:text-5xl font-extrabold text-white mb-4 leading-tight drop-shadow-md">
-                        Belanja Hemat <br> untuk Semua
-                    </h1>
-                    <p class="text-white/90 text-lg mb-8 font-medium">
-                        Marketplace untuk semua. Jual barang bekasmu, temukan kebutuhanmu.
-                    </p>
-                    
-                    <div class="flex justify-center gap-3">
-                        <span class="w-2 h-2 bg-white rounded-full"></span>
-                        <span class="w-2 h-2 bg-white/50 rounded-full"></span>
-                        <span class="w-2 h-2 bg-white/50 rounded-full"></span>
+                    <!-- Controls -->
+                    <div class="absolute inset-y-0 left-0 flex items-center">
+                        <button id="hero-prev" class="m-2 p-2 bg-white/20 hover:bg-white/30 text-white rounded-full">
+                            <i class="fa-solid fa-chevron-left"></i>
+                        </button>
+                    </div>
+                    <div class="absolute inset-y-0 right-0 flex items-center">
+                        <button id="hero-next" class="m-2 p-2 bg-white/20 hover:bg-white/30 text-white rounded-full">
+                            <i class="fa-solid fa-chevron-right"></i>
+                        </button>
                     </div>
                 </div>
             </div>
@@ -249,6 +264,34 @@
                 navbar.classList.remove('shadow-md');
             }
         });
+
+        // 4. Simple Carousel (3 slides)
+        const slides = Array.from(document.querySelectorAll('#hero-carousel .carousel-slide'));
+        let current = 0;
+        const prevBtn = document.getElementById('hero-prev');
+        const nextBtn = document.getElementById('hero-next');
+        let autoTimer = null;
+        const INTERVAL_MS = 5000; // ganti tiap 5 detik
+
+        function renderCarousel(){
+            slides.forEach((s, i) => {
+                const active = i === current;
+                s.style.opacity = active ? '1' : '0';
+                s.style.zIndex = active ? '1' : '0';
+                s.classList.toggle('pointer-events-none', !active);
+                s.classList.toggle('pointer-events-auto', active);
+            });
+        }
+        function next(){ current = (current + 1) % slides.length; renderCarousel(); }
+        function prev(){ current = (current - 1 + slides.length) % slides.length; renderCarousel(); }
+        function startAuto(){ stopAuto(); autoTimer = setInterval(next, INTERVAL_MS); }
+        function stopAuto(){ if (autoTimer) { clearInterval(autoTimer); autoTimer = null; } }
+
+        prevBtn?.addEventListener('click', () => { prev(); startAuto(); });
+        nextBtn?.addEventListener('click', () => { next(); startAuto(); });
+        // Ensure first paint shows the card
+        renderCarousel();
+        setTimeout(startAuto, 500);
     </script>
 </body>
 </html>
