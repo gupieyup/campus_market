@@ -18,16 +18,17 @@
         }
     @endphp
 
-    <title>{{ $product->name }} - CampusMarket</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=Poppins:wght@300;400;500;600&display=swap" rel="stylesheet">
+    
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
-        @import url('https://fonts.googleapis.com/css2?family=Open+Sans:wght@400;600;700&display=swap');
         
-        body { font-family: 'Inter', sans-serif; background-color: #FAFAFA; color: #334155; }
-        #navbar { font-family: 'Open Sans', sans-serif; } 
+        body { font-family: 'Inter', sans-serif; background-color: #FAFAFA; color: #334155; } 
 
         :root { 
             --primary: #FF7A7A; 
@@ -47,9 +48,18 @@
     
     <style type="text/tailwindcss">
         .tokped-container {
-            max-width: 1150px;
-            margin: 0 auto;
-            padding: 0 1.5rem;
+            max-width: 1200px;
+            margin-left: auto;
+            margin-right: auto;
+            padding-left: 1rem;
+            padding-right: 1rem;
+        }
+        
+        @media (min-width: 768px) {
+            .tokped-container {
+                padding-left: 1.5rem;
+                padding-right: 1.5rem;
+            }
         }
         .form-input {
             @apply w-full bg-gray-50 border border-gray-200 rounded-xl px-4 py-3 text-sm focus:outline-none focus:bg-white focus:border-[#FF7A7A] transition-colors placeholder-gray-400;
@@ -60,6 +70,10 @@
         tailwind.config = {
             theme: {
                 extend: {
+                    fontFamily: {
+                        sans: ['Inter', 'sans-serif'],
+                        poppins: ['Poppins', 'sans-serif'],
+                    },
                     colors: {
                         primary: {
                             500: '#FF9894',
@@ -191,8 +205,8 @@
 
         </main>
 
-    <section class="tokped-container mt-32 pt-20">
-        <div class="mt-10 border-t-2 border-gray-200">
+    <section class="tokped-container mt-1 pt-4">
+        <div class="mt-2 border-t-2 border-gray-200">
         <div class="mb-6">
             <h2 class="text-2xl font-bold text-slate-900 flex items-center gap-2 mb-2 mt-8">
                 <i class="fa-solid fa-star text-yellow-400"></i> Ulasan Pengunjung
