@@ -89,13 +89,27 @@ Route::get('/dashboard-admin', [\App\Http\Controllers\Admin\DashboardController:
     ->name('admin.dashboard')
     ->middleware('auth');
 
-Route::get('/dashboard-admin/verifikasi', function () {
-    return view('admin.verifikasi.verifikasi');
-})->middleware('auth');
-
-Route::get('/dashboard-admin/detailverifikasi', function () {
-    return view('admin.verifikasi.detailverifikasi');
-})->middleware('auth');
+Route::middleware('auth')->prefix('dashboard-admin/verifikasi')->group(function () {
+    // Daftar pengajuan verifikasi
+    Route::get('/', [\App\Http\Controllers\Admin\VerifikasiController::class, 'index'])
+        ->name('admin.verifikasi.index');
+    
+    // Detail pengajuan verifikasi
+    Route::get('/{id}', [\App\Http\Controllers\Admin\VerifikasiController::class, 'show'])
+        ->name('admin.verifikasi.show');
+    
+    // Approve pengajuan
+    Route::post('/{id}/approve', [\App\Http\Controllers\Admin\VerifikasiController::class, 'approve'])
+        ->name('admin.verifikasi.approve');
+    
+    // Reject pengajuan
+    Route::post('/{id}/reject', [\App\Http\Controllers\Admin\VerifikasiController::class, 'reject'])
+        ->name('admin.verifikasi.reject');
+    
+    // Statistik verifikasi (API)
+    Route::get('/api/statistics', [\App\Http\Controllers\Admin\VerifikasiController::class, 'statistics'])
+        ->name('admin.verifikasi.statistics');
+});
 
 // Data Penjual Routes - UPDATED
 Route::get('/dashboard-admin/seller-data', [\App\Http\Controllers\Admin\DataPenjualController::class, 'index'])
