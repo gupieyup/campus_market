@@ -110,8 +110,8 @@ Route::get('/dashboard-admin/seller-data/export', [\App\Http\Controllers\Admin\D
     ->name('admin.sellers.export')
     ->middleware('auth');
 
-Route::get('/dashboard-admin/reports', function () {
-    return view('admin.laporan.laporan');
-})->middleware('auth');
+Route::get('/dashboard-admin/reports', [\App\Http\Controllers\Admin\ReportController::class, 'index'])
+    ->name('admin.reports')
+    ->middleware('auth');
 
 require __DIR__.'/debug_ratings.php';
