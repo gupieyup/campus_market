@@ -152,7 +152,8 @@
         <div class="login-card animate-on-scroll opacity-0 transition-all duration-700 delay-200 translate-y-10">
             <h2 class="login-header">Formulir Registrasi Toko Baru</h2>
             
-            <form id="sellerRegisterForm" enctype="multipart/form-data">
+            <form id="sellerRegisterForm" method="POST" action="{{ route('seller.register') }}" enctype="multipart/form-data">
+                @csrf
                 
                 <div class="section-title"><i class="fas fa-store"></i> Data Toko</div>
                 <div class="form-group">
@@ -414,7 +415,7 @@
             m.classList.remove('flex');
         }
 
-        document.getElementById('sellerRegisterForm').addEventListener('submit', function(e) {
+        document.getElementById('sellerRegisterForm').addEventListener('submit', async function(e) {
             e.preventDefault();
 
             // Clear all errors
@@ -479,16 +480,51 @@
             btnLoader.style.display = 'block';
             btnText.textContent = 'MENGIRIM DATA...';
 
-            // Simulate Server Process Delay
-            setTimeout(() => {
-                // Tampilkan modal sukses
-                openSuccessModal();
+            // Kirim ke backend
+            try {
+                const form = document.getElementById('sellerRegisterForm');
+                const formData = new FormData(form);
 
+                const res = await fetch(form.action, {
+                    method: 'POST',
+                    headers: { 'X-Requested-With': 'XMLHttpRequest' },
+                    body: formData
+                });
+
+                if (res.status === 422) {
+                    const data = await res.json();
+                    const errs = data.errors || {};
+                    Object.keys(errs).forEach((field) => {
+                        // map backend field to frontend error keys when different
+                        const map = {
+                            nama_toko: 'nama_toko', deskripsi_toko: 'deskripsi_toko', nama_pic: 'nama_pic',
+                            no_hp_pic: 'no_hp_pic', email_pic: 'email_pic', password: 'password', password_confirmation: 'password_confirmation',
+                            jalan: 'jalan', rt: 'rt', rw: 'rw', kelurahan: 'kelurahan', provinsi: 'provinsi', kota: 'kota',
+                            no_ktp: 'no_ktp', foto_pic: 'foto_pic', file_ktp: 'file_ktp'
+                        };
+                        const key = map[field] || field;
+                        showError(key, errs[field][0]);
+                    });
+                    throw new Error('VALIDATION_ERROR');
+                }
+
+                if (!res.ok) throw new Error('SERVER_ERROR');
+                const data = await res.json();
+                if (data && data.success) {
+                    openSuccessModal();
+                } else {
+                    alert(data.message || 'Gagal mengirim data.');
+                }
+            } catch (err) {
+                if (err.message !== 'VALIDATION_ERROR') {
+                    alert('Terjadi kesalahan saat mengirim data. Silakan coba lagi.');
+                }
+            } finally {
                 // Reset Button
                 btnSubmit.disabled = false;
                 btnLoader.style.display = 'none';
                 btnText.textContent = 'DAFTAR SEKARANG';
-            }, 1200); // Delay 1.2 detik
+            }
         });
 
         // Real-time clear and validate on input/blur

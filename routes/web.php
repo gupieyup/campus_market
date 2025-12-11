@@ -6,6 +6,7 @@ use App\Http\Controllers\Pengunjung\ProductController;
 use App\Http\Controllers\Pengunjung\RatingController;
 use App\Http\Controllers\AuthController;
 use App\Http\Controllers\Seller\DashboardController;
+use App\Http\Controllers\Pengunjung\SellerRegistrationController;
 
 // Halaman cetak laporan (dari DB)
 Route::get('/dashboard-seller/cetaklaporan', [\App\Http\Controllers\Seller\ReportController::class, 'index'])
@@ -35,6 +36,10 @@ Route::post('/logout', [AuthController::class, 'logout'])->name('logout');
 Route::get('/register-seller', function () {
     return view('pengunjung.register');
 });
+
+// Seller registration (store)
+Route::post('/register-seller', [SellerRegistrationController::class, 'store'])
+    ->name('seller.register');
 
 // Seller Dashboard (protected)
 Route::get('/dashboard-seller', [DashboardController::class, 'index'])
