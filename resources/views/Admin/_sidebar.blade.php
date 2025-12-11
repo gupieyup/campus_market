@@ -31,17 +31,107 @@
         <a href="{{ url('/dashboard-admin/verifikasi') }}" class="{{ $active === 'verifikasi' ? 'flex items-center px-4 py-3 text-white bg-red-400 rounded-xl shadow-md transition-colors' : 'flex items-center px-4 py-3 text-gray-600 hover:bg-red-50 hover:text-red-500 rounded-xl transition-colors' }}">
             <svg class="w-5 h-5 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
             Verifikasi Penjual
-            @if(!is_null($verifCount))
+            @if(!is_null($verifCount) && $verifCount > 0)
                 <span class="ml-auto bg-white text-red-500 py-0.5 px-2 rounded-full text-xs font-bold">{{ $verifCount }}</span>
             @endif
         </a>
         
-        <a href="{{ route('logout') }}"
-            class="flex items-center px-4 py-3 text-gray-600 hover:bg-red-50 hover:text-red-500 rounded-xl transition-colors"
-            onclick="event.preventDefault(); document.getElementById('logout-form').submit();">
+        <form id="logout-form" action="{{ route('logout') }}" method="POST" style="display: none;">
+            @csrf
+        </form>
+        
+        <a href="#"
+            id="logoutButton"
+            class="flex items-center px-4 py-3 text-gray-600 hover:bg-red-50 hover:text-red-500 rounded-xl transition-colors">
             <svg class="w-5 h-5 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1"></path></svg>
             Logout
         </a>
         
     </nav>
 </aside>
+
+<!-- Logout Confirmation Modal -->
+<div id="logoutModal" class="fixed inset-0 bg-black bg-opacity-50 z-50 hidden flex items-center justify-center">
+    <div class="bg-white rounded-2xl shadow-2xl max-w-md w-full mx-4 transform transition-all">
+        <!-- Modal Header -->
+        <div class="p-6 border-b border-gray-100">
+            <div class="flex items-center gap-4">
+                <div class="w-12 h-12 bg-red-100 rounded-full flex items-center justify-center flex-shrink-0">
+                    <svg class="w-6 h-6 text-red-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"></path>
+                    </svg>
+                </div>
+                <div>
+                    <h3 class="text-xl font-bold text-gray-800">Apakah Anda yakin ingin keluar?</h3>
+                    {{-- <p class="text-sm text-gray-500 mt-1">Apakah Anda yakin ingin keluar?</p> --}}
+                </div>
+            </div>
+        </div>
+
+        {{-- <!-- Modal Body -->
+        <div class="p-6">
+            <p class="text-gray-600 text-sm">
+                Anda akan keluar dari sistem dan perlu login kembali untuk mengakses dashboard admin.
+            </p>
+        </div> --}}
+
+        <!-- Modal Footer -->
+        <div class="p-6 bg-gray-50 rounded-b-2xl flex gap-3">
+            <button 
+                id="cancelLogout"
+                type="button" 
+                class="flex-1 px-4 py-2.5 bg-white border border-gray-200 text-gray-700 rounded-xl font-semibold hover:bg-gray-50 transition-colors">
+                Batal
+            </button>
+            <button 
+                id="confirmLogout"
+                type="button" 
+                class="flex-1 px-4 py-2.5 bg-red-500 text-white rounded-xl font-semibold hover:bg-red-600 transition-colors">
+                Ya, Keluar
+            </button>
+        </div>
+    </div>
+</div>
+
+<script>
+    // Get elements
+    const logoutButton = document.getElementById('logoutButton');
+    const logoutModal = document.getElementById('logoutModal');
+    const cancelLogout = document.getElementById('cancelLogout');
+    const confirmLogout = document.getElementById('confirmLogout');
+    const logoutForm = document.getElementById('logout-form');
+
+    // Show modal when logout button clicked
+    logoutButton.addEventListener('click', function(e) {
+        e.preventDefault();
+        logoutModal.classList.remove('hidden');
+        document.body.style.overflow = 'hidden'; // Prevent scrolling
+    });
+
+    // Hide modal when cancel button clicked
+    cancelLogout.addEventListener('click', function() {
+        logoutModal.classList.add('hidden');
+        document.body.style.overflow = 'auto'; // Enable scrolling
+    });
+
+    // Hide modal when clicking outside
+    logoutModal.addEventListener('click', function(e) {
+        if (e.target === logoutModal) {
+            logoutModal.classList.add('hidden');
+            document.body.style.overflow = 'auto';
+        }
+    });
+
+    // Submit form when confirm button clicked
+    confirmLogout.addEventListener('click', function() {
+        logoutForm.submit();
+    });
+
+    // Close modal with ESC key
+    document.addEventListener('keydown', function(e) {
+        if (e.key === 'Escape' && !logoutModal.classList.contains('hidden')) {
+            logoutModal.classList.add('hidden');
+            document.body.style.overflow = 'auto';
+        }
+    });
+</script>

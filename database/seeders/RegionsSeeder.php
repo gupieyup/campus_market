@@ -16,7 +16,7 @@ class RegionsSeeder extends Seeder
          DB::table('region')->insert([
             ['id' => 1, 'name' => 'Jawa Timur'],
             ['id' => 2, 'name' => 'Jawa Barat'],
-            ['id' => 3, 'name' => 'jawa Tengah'],
+            ['id' => 3, 'name' => 'Jawa Tengah'],
             ['id'=> 4, 'name' => 'DKI Jakarta'],
             ['id'=> 5, 'name' => 'Bali'],
             ['id'=> 6, 'name' => 'DI Yogyakarta'],

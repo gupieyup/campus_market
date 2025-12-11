@@ -6,7 +6,7 @@ use Illuminate\Database\Eloquent\Model;
 
 class Product extends Model
 {
-    protected $fillable = ['seller_id', 'name', 'description', 'price', 'stock', 'image'];
+    protected $fillable = ['seller_id', 'name', 'description', 'price', 'stock', 'image', 'category_id', 'is_active'];
 
     public function seller()
     {
@@ -36,5 +36,4 @@ class Product extends Model
     {
         return $this->hasMany(ProductDetail::class);
     }
-
 }

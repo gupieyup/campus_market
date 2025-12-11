@@ -43,17 +43,17 @@ Route::get('/dashboard-seller/statistics', [DashboardController::class, 'statist
     ->name('seller.statistics')
     ->middleware('auth');
 
-Route::get('/dashboard-seller/produk', [ProductController::class, 'index'])
+Route::get('/dashboard-seller/produk', [\App\Http\Controllers\Seller\ProductController::class, 'index'])
     ->name('seller.produk')
     ->middleware('auth');
 
 // Halaman tambah produk (form)
-Route::get('/dashboard-seller/tambahproduk', [ProductController::class, 'create'])
+Route::get('/dashboard-seller/tambahproduk', [\App\Http\Controllers\Seller\ProductController::class, 'create'])
     ->name('seller.tambahproduk')
     ->middleware('auth');
 
 // Simpan produk baru
-Route::post('/dashboard-seller/produk', [ProductController::class, 'store'])
+Route::post('/dashboard-seller/produk', [\App\Http\Controllers\Seller\ProductController::class, 'store'])
     ->name('seller.produk.store')
     ->middleware('auth');
 
@@ -82,7 +82,7 @@ Route::post('/dashboard-seller/toggle-account', [DashboardController::class, 'to
     ->name('seller.toggle-account')
     ->middleware('auth');
 
-// Admin Dashboard - UPDATED TO USE CONTROLLER
+// Admin Dashboard
 Route::get('/dashboard-admin', [\App\Http\Controllers\Admin\DashboardController::class, 'index'])
     ->name('admin.dashboard')
     ->middleware('auth');
@@ -95,9 +95,18 @@ Route::get('/dashboard-admin/detailverifikasi', function () {
     return view('admin.verifikasi.detailverifikasi');
 })->middleware('auth');
 
-Route::get('/dashboard-admin/seller-data', function () {
-    return view('admin.penjual.seller_data');
-})->middleware('auth');
+// Data Penjual Routes - UPDATED
+Route::get('/dashboard-admin/seller-data', [\App\Http\Controllers\Admin\DataPenjualController::class, 'index'])
+    ->name('admin.sellers.index')
+    ->middleware('auth');
+
+Route::post('/dashboard-admin/seller-data/{id}/toggle', [\App\Http\Controllers\Admin\DataPenjualController::class, 'toggleStatus'])
+    ->name('admin.sellers.toggle')
+    ->middleware('auth');
+
+Route::get('/dashboard-admin/seller-data/export', [\App\Http\Controllers\Admin\DataPenjualController::class, 'export'])
+    ->name('admin.sellers.export')
+    ->middleware('auth');
 
 Route::get('/dashboard-admin/reports', function () {
     return view('admin.laporan.laporan');
