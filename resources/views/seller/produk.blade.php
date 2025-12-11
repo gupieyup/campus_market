@@ -29,6 +29,7 @@
 <div class="flex h-screen overflow-hidden">
     @include('seller.layouts.sidebar', ['activeMenu' => 'produk'])
     <main class="flex-1 overflow-x-hidden overflow-y-auto bg-red-50 p-6 md:p-8">
+    @include('components.toast')
         
         <!-- Header Halaman -->
         <div class="flex justify-between items-center mb-6">
@@ -76,11 +77,7 @@
                     <option value="stok-habis">Stok Habis</option>
                     <option value="skor-rendah">Skor Rendah</option>
                 </select>
-                <select id="sortSelect" class="px-4 py-2 border border-gray-300 rounded-xl text-sm font-medium focus:ring-red-500 focus:border-red-500">
-                    <option value="">Urutkan</option>
-                    <option value="terbaru">Terbaru</option>
-                    <option value="terlaris">Terlaris</option>
-                </select>
+                <!-- Sort removed per request -->
 
             </div>
         </div>
@@ -178,7 +175,9 @@
     </main>
     
     @if(session('success'))
-        <script>window.alert('{{ session('success') }}');</script>
+        <script>
+            notify({ heading: 'Berhasil', message: '{{ addslashes(session('success')) }}', variant: 'success' });
+        </script>
     @endif
 
 <div id="toast" class="fixed right-6 bottom-6 z-50 hidden">
@@ -189,9 +188,15 @@
     (function(){
         const csrf = document.querySelector('meta[name="csrf-token"]').getAttribute('content');
 
-        function showToast(message, timeout = 3000) {
+        function showToast(message, timeout = 3000, variant = 'info') {
+            if (typeof notify === 'function') {
+                notify({ message, variant, timeout });
+                return;
+            }
+            // fallback minimal
             const toast = document.getElementById('toast');
             const msg = document.getElementById('toast-msg');
+            if (!toast || !msg) return;
             msg.textContent = message;
             toast.classList.remove('hidden');
             setTimeout(()=>{ toast.classList.add('hidden'); }, timeout);
@@ -252,14 +257,14 @@
                             btn.textContent = 'Aktifkan';
                             row.dataset.active = '0';
                         }
-                        showToast(data.message || 'Status produk diperbarui');
+                        showToast(data.message || 'Status produk diperbarui', 3000, 'success');
                     } else {
                         console.warn('toggle returned no success:', data);
-                        showToast((data && data.message) ? data.message : 'Gagal mengubah status produk');
+                        showToast((data && data.message) ? data.message : 'Gagal mengubah status produk', 3500, 'error');
                     }
                 } catch (err) {
                     console.error('Toggle error:', err);
-                    showToast('Gagal mengubah status produk: ' + err.message);
+                    showToast('Gagal mengubah status produk: ' + err.message, 3500, 'error');
                 } finally { btn.disabled = false; }
             });
         });
@@ -295,13 +300,13 @@
                         // remove row
                         const row = btn.closest('tr');
                         row.parentNode.removeChild(row);
-                        showToast(data.message);
+                        showToast(data.message, 3000, 'success');
                     } else {
-                        showToast('Gagal menghapus produk');
+                        showToast('Gagal menghapus produk', 3500, 'error');
                     }
                 } catch (err) {
                     console.error(err);
-                    showToast('Terjadi kesalahan jaringan');
+                    showToast('Terjadi kesalahan jaringan', 3500, 'error');
                 } finally { btn.disabled = false; }
             });
         });
@@ -358,11 +363,7 @@
             });
 
             // sorting: reorder visible rows inside tbody
-            if (sortVal === 'terlaris') {
-                visibleRows.sort((a,b) => (parseInt(b.dataset.sold||0) - parseInt(a.dataset.sold||0)));
-            } else if (sortVal === 'terbaru') {
-                visibleRows.sort((a,b) => (parseInt(a.dataset.order||0) - parseInt(b.dataset.order||0))); // original order ascending -> created desc was used server-side
-            }
+            // Sorting removed; keep server-side ordering
 
             // append rows in order
             visibleRows.forEach(r => tbody.appendChild(r));
@@ -407,7 +408,7 @@
         // attach listeners to selects and search
         document.getElementById('categorySelect')?.addEventListener('change', applyFilters);
         document.getElementById('filterSelect')?.addEventListener('change', applyFilters);
-        document.getElementById('sortSelect')?.addEventListener('change', applyFilters);
+        // Sort select removed
         document.getElementById('productSearch')?.addEventListener('input', applyFilters);
 
         // initial apply

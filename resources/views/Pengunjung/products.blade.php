@@ -30,6 +30,7 @@
 
     {{-- NAVBAR (copied from home) --}}
     <x-navbar />
+    @include('components.toast')
 
     <main class="tokped-container mt-8">
         <div class="flex items-center justify-between mb-4">
@@ -117,6 +118,7 @@
                     <div class="bg-white rounded-lg p-8 text-center border border-gray-100 shadow-sm">
                         <p class="text-gray-600 font-medium">Produk tidak ditemukan.</p>
                     </div>
+                    <script>notify({ message: 'Produk tidak ditemukan untuk filter saat ini.', variant: 'warn', timeout: 2500 });</script>
                 @else
                     <div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-3 md:gap-4">
                         @foreach($products as $index => $item)

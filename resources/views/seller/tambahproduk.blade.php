@@ -46,6 +46,7 @@
 <div class="flex h-screen overflow-hidden">
     @include('seller.layouts.sidebar', ['activeMenu' => 'tambahproduk'])
     <main class="flex-1 overflow-x-hidden overflow-y-auto bg-red-50 p-6 md:p-8">
+        @include('components.toast')
         <div class="flex flex-col items-center mb-8 border-b border-red-200 pb-4">
             <h1 class="text-3xl font-extrabold text-gray-800 w-full text-center">TAMBAH PRODUK</h1>
             <button onclick="history.back()" class="flex items-center text-red-600 font-medium hover:text-red-700 transition-colors mt-2">
@@ -66,7 +67,9 @@
                         {{-- LEBAR PENUH --}}
                         <select id="kategori" name="category_id" required class="form-input border-2 rounded-2xl bg-gray-50 text-gray-700 focus:border-red-500 focus:ring-red-500">
                             <option value="" disabled selected>Silahkan Pilih</option>
-                            <option value="1">Makanan & Minuman</option>
+                            @foreach(($categories ?? []) as $c)
+                                <option value="{{ $c->id }}">{{ $c->name }}</option>
+                            @endforeach
                         </select>
                     </div>
                     
@@ -98,21 +101,12 @@
 
                 <h2 class="text-xl font-bold text-red-600 mb-4 mt-8 pb-2 border-b-2 border-red-100">Foto Produk</h2>
                 <div class="space-y-4 pb-6 mb-6 border-b border-gray-200">
-                    <label class="block text-sm font-semibold text-gray-700 mb-2">Unggah Foto (Maks. 5 Foto) <span class="text-red-500">*</span></label>
-                    
-                    <div id="photoPreview" class="grid grid-cols-2 md:grid-cols-5 gap-4">
+                    <label class="block text-sm font-semibold text-gray-700 mb-2">Unggah Foto Produk <span class="text-red-500">*</span></label>
+                    <div class="flex items-center gap-4">
+                        <img id="singlePreview" src="/images/products/default.png" class="w-24 h-24 object-cover rounded-xl border border-red-200 bg-red-50" />
+                        <input type="file" id="fileInput" name="image" accept="image/*" class="form-input border-2 rounded-2xl bg-white text-gray-700 focus:border-red-500 focus:ring-red-500">
                     </div>
-                    
-                    {{-- Dropzone ini sudah W-FULL --}}
-                    <div id="dropzone" class="dropzone" onclick="document.getElementById('fileInput').click()">
-                        <input type="file" id="fileInput" name="images[]" accept="image/*" class="hidden" multiple>
-                        <div class="flex flex-col items-center justify-center w-full h-32 border-2 border-dashed border-red-400 rounded-2xl bg-red-50 hover:bg-red-100 transition-all cursor-pointer">
-                            <svg class="w-10 h-10 text-red-600 mb-2" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0L8 8m4-4v12"></path></svg>
-                            <p class="text-sm font-medium text-gray-700">Seret & lepas foto di sini, atau klik untuk memilih file.</p>
-                            <p class="text-xs text-gray-500 mt-1">Format: JPG, PNG. Ukuran maks 2MB per foto.</p>
-                        </div>
-                    </div>
-                    <p id="fileError" class="text-xs text-red-600 font-semibold hidden">Maksimal 5 foto telah tercapai atau ukuran file terlalu besar.</p>
+                    <p class="text-xs text-gray-500">Format: JPG, PNG. Ukuran maks 2MB.</p>
                 </div>
 
                 <h2 class="text-xl font-bold text-red-600 mb-4 mt-8 pb-2 border-b-2 border-red-100">Detail Harga</h2>
@@ -131,10 +125,10 @@
                 <div id="moreFields" class="space-y-6 pt-6">
                     <h3 class="text-lg font-bold text-gray-700 mb-2 border-b border-red-100 pb-2">Detail Tambahan (Opsional)</h3>
                     <div>
-                        <label for="stok_produk" class="block text-sm font-semibold text-gray-700 mb-2">Pengaturan Stok Produk</label>
-                        <select id="stok_produk" class="form-input border-2 rounded-2xl bg-gray-50 text-gray-700 focus:border-red-500 focus:ring-red-500">
-                            <option value="tanpa_stok">Tanpa Stok (Tidak Terbatas)</option>
-                            <option value="dengan_stok">Atur Jumlah Stok (Manual)</option>
+                        <label for="is_active" class="block text-sm font-semibold text-gray-700 mb-2">Status Produk</label>
+                        <select id="is_active" name="is_active" class="form-input border-2 rounded-2xl bg-gray-50 text-gray-700 focus:border-red-500 focus:ring-red-500">
+                            <option value="1" selected>Aktif</option>
+                            <option value="0">Nonaktif</option>
                         </select>
                     </div>
                     <div>
@@ -166,25 +160,17 @@
     const MAX_SIZE_BYTES = MAX_SIZE_MB * 1024 * 1024;
 
     document.addEventListener('DOMContentLoaded', () => {
-        const dropzone = document.getElementById('dropzone');
         const fileInput = document.getElementById('fileInput');
-        
-        ['dragenter', 'dragover', 'dragleave', 'drop'].forEach(eventName => {
-            dropzone.addEventListener(eventName, preventDefaults, false);
+        const preview = document.getElementById('singlePreview');
+        fileInput.addEventListener('change', (e) => {
+            const file = e.target.files?.[0];
+            if (!file) return;
+            if (!file.type.startsWith('image/')) { notify({ message: 'File harus berupa gambar.', variant: 'error' }); e.target.value = null; return; }
+            if (file.size > (2*1024*1024)) { notify({ message: 'Ukuran maksimum 2MB.', variant: 'error' }); e.target.value = null; return; }
+            const reader = new FileReader();
+            reader.onload = () => { preview.src = reader.result; };
+            reader.readAsDataURL(file);
         });
-
-        ['dragenter', 'dragover'].forEach(eventName => {
-            dropzone.addEventListener(eventName, () => dropzone.classList.add('border-red-600', 'bg-red-200'), false);
-        });
-
-        ['dragleave', 'drop'].forEach(eventName => {
-            dropzone.addEventListener(eventName, () => dropzone.classList.remove('border-red-600', 'bg-red-200'), false);
-        });
-
-        dropzone.addEventListener('drop', handleDrop, false);
-
-        document.getElementById('productForm').addEventListener('submit', attachFilesToForm);
-        fileInput.addEventListener('change', (e) => handleFiles(e.target.files));
     });
 
     function preventDefaults(e) {
@@ -269,32 +255,7 @@
         }
     }
     
-    function attachFilesToForm(e) {
-        if (uploadedFiles.length === 0) {
-            e.preventDefault();
-            showNotification('Anda harus mengunggah minimal satu Foto Produk.', 'bg-yellow-100 text-yellow-800');
-            return;
-        }
-
-        const form = e.target;
-        
-        const dataTransfer = new DataTransfer();
-        uploadedFiles.forEach(file => {
-            dataTransfer.items.add(file);
-        });
-
-        const oldInput = form.querySelector('input[name="images[]"]');
-        if (oldInput) oldInput.remove();
-
-        const newInput = document.createElement('input');
-        newInput.type = 'file';
-        newInput.name = 'images[]';
-        newInput.multiple = true;
-        newInput.files = dataTransfer.files;
-        newInput.classList.add('hidden');
-        
-        form.appendChild(newInput);
-    }
+    function attachFilesToForm(e) { /* no-op for single file input */ }
 
     function showNotification(message, className) {
         const body = document.querySelector('body');

@@ -76,6 +76,7 @@
 <body class="bg-gray-50 text-slate-800 font-sans antialiased selection:bg-pink-200 selection:text-pink-900 min-h-screen flex flex-col">
     
     <main class="flex-grow">
+        @include('components.toast')
         {{-- Data now provided by `HomeController@index` (DB-driven) --}}
 
         {{-- NAVBAR SECTION --}}
