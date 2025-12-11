@@ -27,6 +27,12 @@ class Product extends Model
         return $this->belongsTo(Category::class);
     }
 
+    // Detail variants/descriptions for a product
+    public function productDetails()
+    {
+        return $this->hasMany(ProductDetail::class, 'product_id');
+    }
+
     // TAMBAHKAN relasi ini untuk mengakses ratings
     public function ratings()
     {
