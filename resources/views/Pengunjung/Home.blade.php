@@ -110,7 +110,7 @@
                 <h3 class="text-xl font-bold text-gray-800 flex items-center gap-2">
                     Kategori Pilihan
                 </h3>
-                <a href="#" class="text-[#FF9894] font-semibold text-sm hover:underline">Lihat Semua</a>
+                
             </div>
             
             <div class="grid grid-cols-5 md:grid-cols-10 gap-y-6 gap-x-2 animate-on-scroll bg-white p-4 rounded-xl border border-gray-100 shadow-sm">
@@ -141,7 +141,7 @@
                 <h3 class="text-xl font-bold text-gray-800 flex items-center gap-2">
                     Sedang Hangat
                 </h3>
-                <a href="#" class="text-[#FF9894] font-semibold text-sm hover:underline">Lihat Semua</a>
+                <a href="{{ route('products.index') }}" class="text-[#FF9894] font-semibold text-sm hover:underline">Lihat Semua</a>
             </div>
 
             @if(empty($products) || count($products) == 0)
