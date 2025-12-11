@@ -181,10 +181,6 @@
                         </span>
                     </div>
                 </div>
-
-                <div class="forgot-pass">
-                    <a href="#">Lupa Password?</a>
-                </div>
                 
                 <button type="submit" class="btn-login" id="btn-submit">
                     <span class="loader" id="btn-loader"></span>
