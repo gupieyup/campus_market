@@ -6,21 +6,28 @@ use Illuminate\Database\Eloquent\Model;
 
 class Rating extends Model
 {
-    /**
-     * Table name is `rating_reviews` (migration created that table).
-     */
     protected $table = 'rating_reviews';
-    // Match migration columns: rating_reviews references product_detail_id and region_id
-    protected $fillable = ['user_id', 'product_detail_id', 'rating', 'review', 'region_id', 'name', 'email', 'no_telp'];
+    
+    protected $fillable = [
+        'user_id', 
+        'product_detail_id', 
+        'rating', 
+        'review', 
+        'region_id', 
+        'name', 
+        'email', 
+        'no_telp'
+    ];
 
     public function user()
     {
         return $this->belongsTo(User::class);
     }
 
+    // Perbaikan: gunakan foreign key yang sesuai dengan tabel
     public function product()
     {
-        return $this->belongsTo(Product::class);
+        return $this->belongsTo(Product::class, 'product_detail_id');
     }
 
     public function region()

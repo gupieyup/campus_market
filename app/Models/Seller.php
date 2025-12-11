@@ -6,18 +6,41 @@ use Illuminate\Database\Eloquent\Model;
 
 class Seller extends Model
 {
-    protected $fillable = ['user_id', 'shop_name', 'shop_description', 'shop_image', 'phone', 'address', 'is_active','region_id'];
+    protected $fillable = [
+        'user_id', 
+        'shop_name', 
+        'shop_description', 
+        'shop_image', 
+        'phone', 
+        'address', 
+        'is_active',
+        'region_id',
+        'verification_status'
+    ];
 
+    protected $casts = [
+        'is_active' => 'boolean',
+    ];
+
+    /**
+     * Relasi ke User
+     */
     public function user()
     {
-        return $this->belongsTo(User::class);
+        return $this->belongsTo(User::class, 'user_id');
     }
 
+    /**
+     * Relasi ke Products
+     */
     public function products()
     {
-        return $this->hasMany(Product::class);
+        return $this->hasMany(Product::class, 'seller_id');
     }
 
+    /**
+     * Relasi ke Region
+     */
     public function region()
     {
         return $this->belongsTo(Region::class, 'region_id');

@@ -9,73 +9,102 @@ use App\Models\Region;
 use App\Models\Product;
 use App\Models\Rating;
 use Illuminate\Support\Carbon;
+use Illuminate\Support\Facades\Log;
 
 class ReportController extends Controller
 {
     public function index(Request $request)
     {
-        $generatedAt = now();
-        $processedBy = optional(auth()->user())->name ?? 'Admin';
+        try {
+            $generatedAt = now();
+            $processedBy = auth()->check() && auth()->user()->name 
+                ? auth()->user()->name 
+                : 'Admin';
 
-        // SRS-MartPlace-09: Sellers by status (Aktif first)
-        $sellers = Seller::with(['user'])
-            ->select(['id','user_id','shop_name','is_active'])
-            ->get();
+            // SRS-MartPlace-09: Sellers by status (Aktif first)
+            $sellers = Seller::with('user')
+                ->get();
 
-        $sellersByStatus = $sellers->map(function ($s) {
-            return [
-                'user_name' => optional($s->user)->name,
-                'pic_name' => optional($s->user)->name, // using user as PIC
-                'store_name' => $s->shop_name,
-                'status' => $s->is_active ? 'Aktif' : 'Tidak Aktif',
-            ];
-        })->sortByDesc(function ($row) {
-            return strtolower($row['status']) === 'aktif';
-        })->values()->all();
+            $sellersByStatus = $sellers->map(function ($seller) {
+                return [
+                    'user_name' => $seller->user ? $seller->user->name : 'N/A',
+                    'pic_name' => $seller->user ? $seller->user->name : 'N/A',
+                    'store_name' => $seller->shop_name ?? 'N/A',
+                    'status' => $seller->is_active ? 'Aktif' : 'Tidak Aktif',
+                ];
+            })->sortByDesc(function ($row) {
+                return strtolower($row['status']) === 'aktif' ? 1 : 0;
+            })->values()->all();
 
-        // SRS-MartPlace-10: Stores by province (sorted)
-        $stores = Seller::with(['region','user'])
-            ->select(['id','shop_name','region_id','user_id'])
-            ->get();
+            // SRS-MartPlace-10: Stores by province (sorted)
+            $stores = Seller::with(['region', 'user'])
+                ->get();
 
-        $storesByProvince = $stores->map(function ($s) {
-            return [
-                'store_name' => $s->shop_name,
-                'pic_name' => optional($s->user)->name,
-                'province' => optional($s->region)->name,
-            ];
-        })->sortBy(function ($row) {
-            return $row['province'] ?? '';
-        })->values()->all();
+            $storesByProvince = $stores->map(function ($seller) {
+                return [
+                    'store_name' => $seller->shop_name ?? 'N/A',
+                    'pic_name' => $seller->user ? $seller->user->name : 'N/A',
+                    'province' => $seller->region ? $seller->region->name : 'N/A',
+                ];
+            })->sortBy(function ($row) {
+                return $row['province'];
+            })->values()->all();
 
-        // SRS-MartPlace-11: Products by rating (desc), province is rater's province
-        $products = Product::with(['category','seller','ratings.region'])
-            ->select(['id','seller_id','name','price','category_id'])
-            ->get();
+            // SRS-MartPlace-11: Products by rating (desc)
+            $products = Product::with([
+                    'category',
+                    'seller',
+                    'ratings.region'
+                ])
+                ->get();
 
-        $productsByRating = $products->map(function ($p) {
-            $avgRating = round(optional($p->ratings)->avg('rating'), 2);
-            // Choose province of the latest rating if available
-            $latestRating = optional($p->ratings)->sortByDesc('id')->first();
-            $province = optional(optional($latestRating)->region)->name;
-            return [
-                'product_name' => $p->name,
-                'category' => optional($p->category)->name,
-                'price' => $p->price,
-                'rating' => $avgRating ?: 0,
-                'store_name' => optional($p->seller)->shop_name,
-                'province' => $province,
-            ];
-        })->sortByDesc(function ($row) {
-            return $row['rating'] ?? 0;
-        })->values()->all();
+            $productsByRating = $products->map(function ($product) {
+                // Hitung rata-rata rating
+                $ratingsCount = $product->ratings->count();
+                $avgRating = $ratingsCount > 0 
+                    ? round($product->ratings->avg('rating'), 2) 
+                    : 0;
+                
+                // Ambil provinsi dari rating terbaru
+                $latestRating = $product->ratings->sortByDesc('id')->first();
+                $province = 'N/A';
+                
+                if ($latestRating && $latestRating->region) {
+                    $province = $latestRating->region->name;
+                }
+                
+                return [
+                    'product_name' => $product->name ?? 'N/A',
+                    'category' => $product->category ? $product->category->name : 'N/A',
+                    'price' => $product->price ?? 0,
+                    'rating' => $avgRating,
+                    'store_name' => $product->seller ? $product->seller->shop_name : 'N/A',
+                    'province' => $province,
+                ];
+            })->sortByDesc(function ($row) {
+                return $row['rating'];
+            })->values()->all();
 
-        return view('admin.laporan.laporan', [
-            'generatedAt' => $generatedAt,
-            'processedBy' => $processedBy,
-            'sellersByStatus' => $sellersByStatus,
-            'storesByProvince' => $storesByProvince,
-            'productsByRating' => $productsByRating,
-        ]);
+            return view('admin.laporan.laporan', [
+                'generatedAt' => $generatedAt,
+                'processedBy' => $processedBy,
+                'sellersByStatus' => $sellersByStatus,
+                'storesByProvince' => $storesByProvince,
+                'productsByRating' => $productsByRating,
+            ]);
+
+        } catch (\Exception $e) {
+            Log::error('Report Controller Error: ' . $e->getMessage());
+            Log::error('Stack trace: ' . $e->getTraceAsString());
+            
+            return view('admin.laporan.laporan', [
+                'generatedAt' => now(),
+                'processedBy' => 'Admin',
+                'sellersByStatus' => [],
+                'storesByProvince' => [],
+                'productsByRating' => [],
+                'error' => $e->getMessage()
+            ]);
+        }
     }
 }

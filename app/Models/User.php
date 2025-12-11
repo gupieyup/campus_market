@@ -2,32 +2,30 @@
 
 namespace App\Models;
 
-// use Illuminate\Contracts\Auth\MustVerifyEmail;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
-use App\Models\Seller;
 
 class User extends Authenticatable
 {
-    /** @use HasFactory<\Database\Factories\UserFactory> */
     use HasFactory, Notifiable;
 
     /**
      * The attributes that are mass assignable.
      *
-     * @var list<string>
+     * @var array<int, string>
      */
     protected $fillable = [
         'name',
         'email',
         'password',
+        'role',
     ];
 
     /**
      * The attributes that should be hidden for serialization.
      *
-     * @var list<string>
+     * @var array<int, string>
      */
     protected $hidden = [
         'password',
@@ -48,10 +46,18 @@ class User extends Authenticatable
     }
 
     /**
-     * Relation: one User has one Seller profile (if the user is a penjual)
+     * Relasi ke Seller (one-to-one)
      */
     public function seller()
     {
-        return $this->hasOne(Seller::class);
+        return $this->hasOne(Seller::class, 'user_id');
+    }
+
+    /**
+     * Relasi ke Ratings
+     */
+    public function ratings()
+    {
+        return $this->hasMany(Rating::class, 'user_id');
     }
 }
