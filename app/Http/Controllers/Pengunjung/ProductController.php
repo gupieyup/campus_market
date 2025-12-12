@@ -11,6 +11,7 @@ use Illuminate\Pagination\LengthAwarePaginator;
 use App\Models\ProductDetail;
 use App\Models\Rating;
 use App\Models\Region;
+use App\Models\Cities;
 use App\Models\Seller;
 use Illuminate\Support\Facades\Schema;
 use Illuminate\Database\Eloquent\ModelNotFoundException;
@@ -19,20 +20,6 @@ use Illuminate\Support\Str;
 
 class ProductController extends Controller
 {
-    /**
-     * Determine the column used for city/regency in the region table.
-     */
-    private function getCityColumn(): ?string
-    {
-        $candidates = ['city', 'kabupaten', 'kota', 'city_name', 'regency'];
-        foreach ($candidates as $c) {
-            if (\Illuminate\Support\Facades\Schema::hasColumn('region', $c)) {
-                return $c;
-            }
-        }
-        return null;
-    }
-
     /**
      * Display the specified product detail.
      */
@@ -52,13 +39,10 @@ class ProductController extends Controller
                 if (filter_var($img, FILTER_VALIDATE_URL)) {
                     $imageUrl = $img;
                 } elseif (Str::startsWith($img, 'images/')) {
-                    // e.g. "images/products/xyz.jpg" in public dir
                     $imageUrl = asset($img);
                 } elseif (Str::startsWith($img, '/storage/') || Str::startsWith($img, 'storage/')) {
-                    // already a storage-backed path from uploader
                     $imageUrl = asset(ltrim($img, '/'));
                 } else {
-                    // fallback: assume file stored under storage/public
                     $imageUrl = asset('storage/' . ltrim($img, '/'));
                 }
             } else {
@@ -110,14 +94,16 @@ class ProductController extends Controller
             abort(404);
         }
     }
+
     public function index(Request $request)
     {
         // Read query parameters
         $q         = trim($request->query('q', ''));
         $categoryId= $request->query('category');
         $shopName  = trim($request->query('shop', ''));
-        $province  = trim($request->query('province', ''));
-        $city      = trim($request->query('city', ''));
+        $provinceId= $request->query('province');
+        $cityId    = $request->query('city');
+
         try {
             $perPage = 12;
 
@@ -128,6 +114,7 @@ class ProductController extends Controller
                       ->where('verification_status', 'verified');
                 });
 
+            // Search by product name or shop name
             if (!empty($q)) {
                 $productsQuery = $productsQuery->where(function ($w) use ($q) {
                     $w->where('name', 'like', '%' . $q . '%')
@@ -137,34 +124,41 @@ class ProductController extends Controller
                 });
             }
 
+            // Filter by category
             if (!empty($categoryId)) {
                 $productsQuery = $productsQuery->where('category_id', $categoryId);
             }
 
+            // Filter by shop name
             if ($shopName !== '') {
                 $productsQuery->whereHas('seller', function ($s) use ($shopName) {
                     $s->where('shop_name', 'like', '%' . $shopName . '%');
                 });
             }
 
-            if ($province !== '') {
-                if (Schema::hasColumn('region', 'name')) {
-                    $productsQuery->whereHas('seller.region', function ($r) use ($province) {
-                        $r->where('name', 'like', '%' . $province . '%');
+            // Filter by province (region_id)
+            if (!empty($provinceId)) {
+                $productsQuery->whereHas('seller', function ($s) use ($provinceId) {
+                    $s->where('region_id', $provinceId);
+                });
+            }
+
+            // Filter by city
+            if (!empty($cityId)) {
+                // Get sellers from this city
+                $cityRecord = Cities::find($cityId);
+                if ($cityRecord) {
+                    $productsQuery->whereHas('seller', function ($s) use ($cityRecord) {
+                        // Match sellers whose address contains the city name
+                        $s->where('address', 'like', '%' . $cityRecord->name . '%')
+                          ->where('region_id', $cityRecord->region_id);
                     });
                 }
             }
 
-            if ($city !== '') {
-                // No city column in region; match seller address text
-                $productsQuery->whereHas('seller', function ($s) use ($city) {
-                    $s->where('address', 'like', '%' . $city . '%');
-                });
-            }
-
             $products = $productsQuery->latest()->paginate($perPage);
 
-            // SAMAKAN FORMAT DENGAN HomeController + tambahkan URL
+            // Transform products to match frontend format
             $products->getCollection()->transform(function ($p) {
                 $avg = $p->ratings->count() ? round($p->ratings->avg('rating'), 1) : 4.8;
 
@@ -175,7 +169,6 @@ class ProductController extends Controller
                     'price'    => 'Rp ' . number_format($p->price ?? 0, 0, ',', '.'),
                     'category' => optional($p->category)->name ?? 'Lainnya',
                     'location' => optional($p->seller->region)->name 
-                                ?? optional($p->seller->region)->region_name 
                                 ?? 'Tidak diketahui',
                     'rating'   => $avg,
                     'sold'     => property_exists($p, 'sold') ? ($p->sold ?? '0') : '0',
@@ -196,74 +189,31 @@ class ProductController extends Controller
             });
 
         } catch (QueryException $e) {
-            Log::warning('HomeController: using fallback demo due to QueryException: ' . $e->getMessage());
-            // fallback demo
-            // $items = [
-            //     [
-            //         'id'       => 1,
-            //         'url'      => '#',
-            //         'name'     => 'Laptop Gaming ASUS ROG Bekas Mulus',
-            //         'price'    => 'Rp 8.500.000',
-            //         'location' => 'Jakarta Selatan',
-            //         'rating'   => '4.8',
-            //         'sold'     => '12',
-            //         'img'      => 'https://images.unsplash.com/photo-1593640408182-31c70c8268f5?w=500&q=80',
-            //     ],
-            //     [
-            //         'id'       => 2,
-            //         'url'      => '#',
-            //         'name'     => 'Kemeja Flannel Uniqlo Size L',
-            //         'price'    => 'Rp 150.000',
-            //         'location' => 'Bandung',
-            //         'rating'   => '4.9',
-            //         'sold'     => '5',
-            //         'img'      => 'https://images.unsplash.com/photo-1596755094514-f87e34085b2c?w=500&q=80',
-            //     ],
-            // ];
-
-            // $perPage = 12;
-            // $page = max(1, (int) $request->query('page', 1));
-
-            // $products = new LengthAwarePaginator(
-            //     array_slice($items, ($page - 1) * $perPage, $perPage),
-            //     count($items),
-            //     $perPage,
-            //     $page,
-            //     [
-            //         'path'  => url()->current(),
-            //         'query' => $request->query(),
-            //     ]
-            // );
+            Log::warning('ProductController: using fallback due to QueryException: ' . $e->getMessage());
+            // Return empty collection on error
+            $products = new LengthAwarePaginator([], 0, 12, 1, [
+                'path' => url()->current(),
+                'query' => $request->query(),
+            ]);
         }
 
-        // Dropdown sources from Region (resilient to column differences)
-        $provinceList = collect();
-        if (Schema::hasColumn('region', 'name')) {
-            $provinceList = Region::select('name as province')
-                ->whereNotNull('name')
-                ->distinct()->orderBy('province')->pluck('province');
-        }
+        // Get all provinces (regions) for dropdown
+        $provinceList = Region::orderBy('name')->get();
+
+        // Get cities for selected province
         $cityList = collect();
-        if ($province !== '' && Schema::hasColumn('region', 'name')) {
-            $region = Region::where('name', $province)->first();
-            if ($region) {
-                $cityList = Seller::where('region_id', $region->id)
-                    ->where('is_active', true)
-                    ->where('verification_status', 'verified')
-                    ->whereNotNull('address')
-                    ->select('address as city')
-                    ->distinct()
-                    ->orderBy('city')
-                    ->pluck('city');
-            }
+        if (!empty($provinceId)) {
+            $cityList = Cities::where('region_id', $provinceId)
+                ->orderBy('name')
+                ->get();
         }
 
         return view('pengunjung.products', [
             'products'       => $products,
             'q'              => $q,
             'shop'           => $shopName,
-            'province'       => $province,
-            'city'           => $city,
+            'provinceId'     => $provinceId,
+            'cityId'         => $cityId,
             'provinceList'   => $provinceList,
             'cityList'       => $cityList,
             'categories'     => Category::all(),
@@ -272,26 +222,20 @@ class ProductController extends Controller
     }
 
     /**
-     * AJAX: return city/regency list for a given province.
+     * AJAX: return city list for a given province.
      */
     public function cities(Request $request)
     {
-        $province = trim($request->query('province', ''));
-        if (!Schema::hasColumn('region', 'name')) {
+        $provinceId = $request->query('province_id');
+        
+        if (empty($provinceId)) {
             return response()->json([]);
         }
-        $region = Region::where('name', $province)->first();
-        if (!$region) {
-            return response()->json([]);
-        }
-        $cities = Seller::where('region_id', $region->id)
-            ->where('is_active', true)
-            ->where('verification_status', 'verified')
-            ->whereNotNull('address')
-            ->select('address as city')
-            ->distinct()
-            ->orderBy('city')
-            ->pluck('city');
+
+        $cities = Cities::where('region_id', $provinceId)
+            ->orderBy('name')
+            ->get(['id', 'name']);
+
         return response()->json($cities);
     }
 }

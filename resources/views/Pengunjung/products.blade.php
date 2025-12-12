@@ -57,8 +57,6 @@
                             <input type="hidden" name="{{ $key }}" value="{{ $val }}" />
                         @endforeach
 
-                        <!-- Product name removed per request -->
-
                         <!-- Shop name -->
                         <div>
                             <label class="text-sm text-gray-600">Nama toko</label>
@@ -84,7 +82,7 @@
                             <select id="province-select" name="province" class="mt-1 w-full border border-gray-300 rounded-md px-3 py-2 text-sm focus:outline-none focus:ring-1 focus:ring-pink-300">
                                 <option value="">Semua provinsi</option>
                                 @foreach(($provinceList ?? collect()) as $prov)
-                                    <option value="{{ $prov }}" {{ (string)($province ?? '') === (string)$prov ? 'selected' : '' }}>{{ $prov }}</option>
+                                    <option value="{{ $prov->id }}" {{ (string)($provinceId ?? '') === (string)$prov->id ? 'selected' : '' }}>{{ $prov->name }}</option>
                                 @endforeach
                             </select>
                         </div>
@@ -95,7 +93,7 @@
                             <select id="city-select" name="city" class="mt-1 w-full border border-gray-300 rounded-md px-3 py-2 text-sm focus:outline-none focus:ring-1 focus:ring-pink-300">
                                 <option value="">Semua kota/kabupaten</option>
                                 @foreach(($cityList ?? collect()) as $c)
-                                    <option value="{{ $c }}" {{ (string)($city ?? '') === (string)$c ? 'selected' : '' }}>{{ $c }}</option>
+                                    <option value="{{ $c->id }}" {{ (string)($cityId ?? '') === (string)$c->id ? 'selected' : '' }}>{{ $c->name }}</option>
                                 @endforeach
                             </select>
                         </div>
@@ -106,14 +104,10 @@
                         </div>
                     </form>
                 </div>
-
-                <!-- Optional: category chips remain under grid in mobile; hidden here -->
             </aside>
 
             <!-- Results -->
             <section class="md:col-span-9">
-                <!-- Category chips removed per request -->
-
                 @if(empty($products) || $products->total() == 0)
                     <div class="bg-white rounded-lg p-8 text-center border border-gray-100 shadow-sm">
                         <p class="text-gray-600 font-medium">Produk tidak ditemukan.</p>
@@ -168,30 +162,64 @@
 
     <script>
         const scrollBtn = document.getElementById('scrollToTop');
-        window.addEventListener('scroll', () => { if (window.scrollY > 300) { scrollBtn.classList.remove('translate-y-20','opacity-0'); } else { scrollBtn.classList.add('translate-y-20','opacity-0'); } });
+        window.addEventListener('scroll', () => { 
+            if (window.scrollY > 300) { 
+                scrollBtn.classList.remove('translate-y-20','opacity-0'); 
+            } else { 
+                scrollBtn.classList.add('translate-y-20','opacity-0'); 
+            } 
+        });
         scrollBtn.addEventListener('click', () => window.scrollTo({ top: 0, behavior: 'smooth' }));
 
-        // Dependent city dropdown
+        // Dependent city dropdown - AJAX load cities when province changes
         const provinceSelect = document.getElementById('province-select');
         const citySelect = document.getElementById('city-select');
-        async function loadCitiesByProvince(province) {
-            citySelect.innerHTML = '<option value="">Semua kota/kabupaten</option>';
-            if (!province) return;
+        const currentCityId = "{{ $cityId ?? '' }}";
+
+        async function loadCitiesByProvince(provinceId, selectCityId = null) {
+            citySelect.innerHTML = '<option value="">Memuat...</option>';
+            
+            if (!provinceId) {
+                citySelect.innerHTML = '<option value="">Semua kota/kabupaten</option>';
+                return;
+            }
+            
             try {
-                const res = await fetch(`{{ route('regions.cities') }}?province=${encodeURIComponent(province)}`);
+                const res = await fetch(`{{ route('regions.cities') }}?province_id=${encodeURIComponent(provinceId)}`);
                 const data = await res.json();
+                
+                citySelect.innerHTML = '<option value="">Semua kota/kabupaten</option>';
+                
                 data.forEach(c => {
                     const opt = document.createElement('option');
-                    opt.value = c;
-                    opt.textContent = c;
+                    opt.value = c.id;
+                    opt.textContent = c.name;
+                    
+                    // Select the city if it matches
+                    if (selectCityId && String(c.id) === String(selectCityId)) {
+                        opt.selected = true;
+                    }
+                    
                     citySelect.appendChild(opt);
                 });
-            } catch (e) { /* ignore */ }
+            } catch (e) {
+                console.error('Failed to load cities:', e);
+                citySelect.innerHTML = '<option value="">Gagal memuat kota</option>';
+            }
         }
-        provinceSelect?.addEventListener('change', (e) => loadCitiesByProvince(e.target.value));
-        // If province already selected but city list empty (first load), fetch cities
-        if (provinceSelect && provinceSelect.value && (!citySelect || citySelect.options.length <= 1)) {
-            loadCitiesByProvince(provinceSelect.value);
+
+        // When province changes, load cities
+        provinceSelect?.addEventListener('change', (e) => {
+            loadCitiesByProvince(e.target.value);
+        });
+
+        // On page load: if province is selected but city list is empty, fetch cities
+        if (provinceSelect && provinceSelect.value) {
+            const currentProvinceId = provinceSelect.value;
+            // Only load if city dropdown only has the default option
+            if (citySelect && citySelect.options.length <= 1) {
+                loadCitiesByProvince(currentProvinceId, currentCityId);
+            }
         }
     </script>
 
