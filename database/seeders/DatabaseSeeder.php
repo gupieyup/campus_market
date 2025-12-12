@@ -27,6 +27,7 @@ class DatabaseSeeder extends Seeder
             OrdersSeeder::class,
             OrderItemsSeeder::class,
             RatingReviewSeeder::class,
+            CitiesSeeder::class,
         ]);
     }
 }

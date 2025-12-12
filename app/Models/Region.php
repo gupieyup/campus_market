@@ -19,4 +19,9 @@ class Region extends Model
     {
         return $this->hasMany(Rating::class);
     }
+
+    public function cities()
+    {
+        return $this->hasMany(Cities::class);
+    }
 }

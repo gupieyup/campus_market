@@ -18,7 +18,8 @@ Route::get('/', [HomeController::class, 'index']);
 
 // Product listing / search page
 Route::get('/products', [ProductController::class, 'index'])->name('products.index');
-// AJAX: Cities by selected province for sidebar search
+
+// AJAX: Cities by selected province for sidebar search - UPDATED
 Route::get('/regions/cities', [ProductController::class, 'cities'])->name('regions.cities');
 
 // Product detail page
